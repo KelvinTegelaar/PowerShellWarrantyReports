@@ -1,4 +1,4 @@
-$source = "CW" #AT, CSV, ITG, CW
+$source = "CSV" #AT, CSV, ITG, CW
 ##### Sync Settings
 $SyncWithSource = $true  #Sync status warranty dates/status back to PSA/Management system. Only works with dynamic sources like ITG and AT.
 $OverwriteWarranty = $true #Overwrites the date already found in AT with the one based on this API, unless the API could not find information.
@@ -20,7 +20,9 @@ $CWcompanyid = "CompanyID_1" #Only required if source is CW
 ##### Warranty Vendor API Keys
 $DellClientID = "Dell-Client-ID"
 $DellClientSecret = "Dell-Client-Secret"
- 
+
+
+
 function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
     $MWSID = (invoke-restmethod -uri 'https://support.hp.com/us-en/checkwarranty/multipleproducts/' -SessionVariable 'session' -Method get) -match '.*mwsid":"(?<wssid>.*)".*'
     $HPBody = " { `"gRecaptchaResponse`":`"`", `"obligationServiceRequests`":[ { `"serialNumber`":`"$SourceDevice`", `"isoCountryCde`":`"US`", `"lc`":`"EN`", `"cc`":`"US`", `"modelNumber`":null }] }"
@@ -51,14 +53,19 @@ function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
 function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client) {
     $today = Get-Date -Format yyyy-MM-dd
     $AuthURI = "https://apigtwb2c.us.dell.com/auth/oauth/v2/token"
-    $OAuth = "$global:DellClientID`:$global:DellClientSecret"
-    $Bytes = [System.Text.Encoding]::ASCII.GetBytes($OAuth)
-    $EncodedOAuth = [Convert]::ToBase64String($Bytes)
-    $headersAuth = @{ "authorization" = "Basic $EncodedOAuth" }
-    $Authbody = 'grant_type=client_credentials'
-    $AuthResult = Invoke-RESTMethod -Method Post -Uri $AuthURI -Body $AuthBody -Headers $HeadersAuth
-    $token = $AuthResult.access_token
-    $headersReq = @{ "Authorization" = "Bearer $token" }
+    if ($Global:TokenAge -lt (get-date).AddMinutes(-55)) { $global:Token = $null }
+    If ($null -eq $global:Token) {
+        $OAuth = "$global:DellClientID`:$global:DellClientSecret"
+        $Bytes = [System.Text.Encoding]::ASCII.GetBytes($OAuth)
+        $EncodedOAuth = [Convert]::ToBase64String($Bytes)
+        $headersAuth = @{ "authorization" = "Basic $EncodedOAuth" }
+        $Authbody = 'grant_type=client_credentials'
+        $AuthResult = Invoke-RESTMethod -Method Post -Uri $AuthURI -Body $AuthBody -Headers $HeadersAuth
+        $global:token = $AuthResult.access_token
+        $Global:TokenAge = (get-date)
+    }
+
+    $headersReq = @{ "Authorization" = "Bearer $global:Token" }
     $ReqBody = @{ servicetags = $SourceDevice }
     $WarReq = Invoke-RestMethod -Uri "https://apigtwb2c.us.dell.com/PROD/sbil/eapi/v5/asset-entitlements" -Headers $headersReq -Body $ReqBody -Method Get -ContentType "application/json"
     $warlatest = $warreq.entitlements.enddate | sort-object | select-object -last 1 
@@ -410,7 +417,7 @@ Please consult the report for more information. you can use the search window to
  
 if ($CreateHTMLReport -eq $true) {
     $CheckReportFolder = Test-Path($ReportsLocation)
-    if (!$ReportsLocation) { new-item -ItemType Directory -Path $ReportsLocation -Force | Out-Null }
+    if (!$CheckReportFolder) { new-item -ItemType Directory -Path $ReportsLocation -Force | Out-Null }
     foreach ($client in $warrantyObject.client | Select-Object -Unique) {
         write-host "Generating report for $Client at $($ReportsLocation)\$client.html" -ForegroundColor Green
         $warrantyObject | Where-Object { $_.Client -eq $client } | convertto-html -Head $head -precontent $precontent | out-file "$($ReportsLocation)\$client.html"
