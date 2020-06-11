@@ -307,10 +307,10 @@ function  Get-WarrantyCW() {
     $i = 0
     $Devices = @()
     do {
-        $Devices += invoke-restmethod -headers $header -method GET -uri "$($Global:CWAPIURL)/company/configurations?pageSize=1000&page=$i"
+        $Devices += invoke-restmethod -headers $header -method GET -uri "$($Global:CWAPIURL)/company/configurations?pageSize=250&page=$i"
         $i++
         Write-Host "Retrieved $($devices.count) configurations" -ForegroundColor Yellow
-    }while ($devices.count % 1000 -eq 0 -and $devices.count -ne 0) 
+    }while ($devices.count % 250 -eq 0 -and $devices.count -ne 0) 
  
     $warrantyObject = foreach ($device in $Devices) {
         $i++
