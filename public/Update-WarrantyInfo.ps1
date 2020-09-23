@@ -1,0 +1,76 @@
+function update-warrantyinfo {
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName = 'CSV', Mandatory = $true)]
+        [Switch]$CSV,
+        [Parameter(ParameterSetName = 'CSV', Mandatory = $false)]
+        [String]$CSVFilePath,
+        [Parameter(ParameterSetName = 'Autotask', Mandatory = $true)]
+        [switch]$Autotask,
+        [Parameter(ParameterSetName = 'Autotask', Mandatory = $true)]
+        [Pscredential]$AutotaskCredentials,
+        [Parameter(ParameterSetName = 'Autotask', Mandatory = $true)]
+        [String]$AutotaskAPIKey,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
+        [switch]$CWManage,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
+        [Pscredential]$CWManagePublicKey,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
+        [String]$CWManagePrivateKey,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
+        [String]$CWManageAPIURL,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
+        [String]$CWManageCompanyID,
+        [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
+        [switch]$ITGue,
+        [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
+        [Pscredential]$ITGlueAPIURL,
+        [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
+        [String]$ITGlueAPIKey,
+        [Parameter(Mandatory = $false)]
+        [Switch]$SyncWithSource,
+        [Parameter(Mandatory = $false)]
+        [switch]$OverwriteWarranty,
+        [Parameter(ParameterSetName = 'Logs', Mandatory = $false)]
+        [switch]$LogActions,
+        [Parameter(ParameterSetName = 'Logs', Mandatory = $false)]
+        [String]$LogFile = "C:\Temp\WarrantyUpdateLog.txt",
+        [Parameter(Mandatory = $false)]
+        [switch]$GenerateReports,
+        [Parameter(Mandatory = $false)]
+        [switch]$ReturnWarrantyObject,
+        [Parameter(Mandatory = $false)]
+        [String]$ReportsLocation = "C:\Temp\"
+    )
+    write-host $PSBoundParameters
+    $script:LogPath = $LogFile
+    switch ($PSBoundParameters.Keys) {
+        Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        CSV { $WarrantyStatus = Get-WarrantyCSV -Sourcefile $CSVFilePath | Sort-Object -Property Client }
+        ITGlue { $WarrantyStatus = Get-WarrantyITG -ITGAPIKey $ITGlueAPIKey -ITGAPIURL $ITGlueAPIURL -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+    }
+   
+    if ($GenerateReports -eq $true) {
+        write-host "Done collecting warranty information. Generating reports." -ForegroundColor Green
+
+        $CheckReportFolder = Test-Path($ReportsLocation)
+        if (!$CheckReportFolder) { new-item -ItemType Directory -Path $ReportsLocation -Force }
+        foreach ($client in $WarrantyStatus.client | Select-Object -Unique) {
+            write-host "Generating report for $Client at $($ReportsLocation)\$client.html" -ForegroundColor Green
+            New-HTML {   
+                New-HTMLTab -Name 'Warranty of devices' {
+                    New-HTMLSection -HeaderText "$($client)" {
+                        New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client })
+                    }
+                    
+                }
+              
+            } -FilePath "$($ReportsLocation)\$client.html" -Online
+
+        }
+    }
+
+    if ($ReturnWarrantyObject -eq $true) { return $WarrantyStatus }
+
+}
