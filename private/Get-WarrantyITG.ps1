@@ -29,7 +29,6 @@ function  Get-WarrantyITG {
     $warrantyObject = foreach ($device in $AllITGlueConfigs) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.attributes.'serial-number'). Device $i of $($AllITGlueConfigs.Count)" -percentComplete ($i / $AllITGlueConfigs.Count * 100)
-        $Client = ($AllClients | Where-Object { $_.id -eq $device.AccountID }).AccountName
         $client = $device.attributes.'organization-name'
         switch ($device.attributes.'serial-number'.Length) {
             7 { $WarState = get-DellWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
