@@ -22,7 +22,7 @@ function update-warrantyinfo {
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [String]$CWManageCompanyID,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
-        [switch]$ITGue,
+        [switch]$ITGlue,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
         [string]$ITGlueAPIURL,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
