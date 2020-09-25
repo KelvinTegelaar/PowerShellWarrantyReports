@@ -18,7 +18,7 @@ function  Get-WarrantyCWM {
     }
     $i = 0
     $Devices = do {
-        $DeviceList = invoke-restmethod -headers $header -method GET -uri "$($CWMPIURL)/company/configurations?pageSize=250&page=$i"
+        $DeviceList = invoke-restmethod -headers $header -method GET -uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
         $i++
         $DeviceList
         Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
@@ -45,13 +45,13 @@ function  Get-WarrantyCWM {
             switch ($script:OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
-                        invoke-restmethod -headers $header -method put -uri "$($CWMPIURL)/company/configurations/$($device.id)" -body $CWBody
+                        invoke-restmethod -headers $header -method put -uri "$($CWMAPIURL)/company/configurations/$($device.id)" -body $CWBody
                     }
                      
                 }
                 $false { 
                     if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
-                        invoke-restmethod -headers $header -method put -uri "$($CWMPIURL)/company/configurations/$($device.id)" -body $CWBody
+                        invoke-restmethod -headers $header -method put -uri "$($CWMAPIURL)/company/configurations/$($device.id)" -body $CWBody
                     } 
                 }
             }
