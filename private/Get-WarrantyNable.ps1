@@ -10,7 +10,6 @@ function  Get-WarrantyNable {
     # Generate a pseudo-unique namespace to use with the New-WebServiceProxy and
     # associated types.
     $NWSNameSpace = "NAble" + ([guid]::NewGuid()).ToString().Substring(25)
-    $KeyPairType = "$NWSNameSpace.T_KeyPair"
 
     # Bind to the namespace, using the Webserviceproxy
     $bindingURL = "https://" + $NableURL + "/dms/services/ServerEI?wsdl"
@@ -47,12 +46,6 @@ function  Get-WarrantyNable {
             12 { $WarState = Get-MSWarranty  -SourceDevice $device.serial -client $Client }
         }
         if ($SyncWithSource -eq $true) {
-            $FlexAssetBody = @{
-                "type"       = "configurations"
-                "attributes" = @{
-                    'warranty-expires-at' = $warstate.EndDate
-                } 
-            }
             switch ($OverwriteWarranty) {
                 $true {
                     write-host "N-Central does not support Warranty write-back."               
