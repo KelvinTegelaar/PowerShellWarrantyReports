@@ -11,7 +11,7 @@ This module has been published to the PowerShell Gallery. Use the following comm
 
 # Supported Platforms
 
-The following platforms are supported. You can also use a CSV file as a source to generate reports. This won't sync back to the source though.
+The following platforms are supported. You can also use a CSV file as a source to generate reports. This won't sync back to the source though. Some APIs don't allow write-back, so those are only available to create reports.
 
 An unchecked box means development for this is underway
 
@@ -21,8 +21,9 @@ An unchecked box means development for this is underway
 - [x] IT-Glue (Yes, I know its not a PSA, but where else would I put this?)
 
 ## RMM
-- [ ] Solarwinds N-Able
+- [x] Solarwinds N-Able (Reporting only)
 - [ ] Solarwinds RMM
+- [ ] NinjaRMM (Reporting only)
 - [ ] SyncroRMM
 - [ ] DattoRMM
 - [ ] Connectwise Automate
@@ -32,9 +33,6 @@ An unchecked box means development for this is underway
 - [x] Microsoft
 - [x] HP (Spotty API. New one coming soon.)
 - [x] Lenovo
-- [ ] Apple
-- [ ] 
-
 
 # Usage
 
