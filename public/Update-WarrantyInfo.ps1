@@ -33,6 +33,14 @@ function update-warrantyinfo {
         [string]$NableJWT,
         [Parameter(ParameterSetName = 'Nable', Mandatory = $true)]
         [String]$NableURL,
+        [Parameter(ParameterSetName = 'Datto', Mandatory = $true)]
+        [switch]$DattoRMM,
+        [Parameter(ParameterSetName = 'Datto', Mandatory = $true)]
+        [string]$DattoAPIKey,
+        [Parameter(ParameterSetName = 'Datto', Mandatory = $true)]
+        [String]$DattoAPISecret,
+        [Parameter(ParameterSetName = 'Datto', Mandatory = $true)]
+        [String]$DattoAPIURL,
         [Parameter(Mandatory = $false)]
         [Switch]$SyncWithSource,
         [Parameter(Mandatory = $false)]
@@ -55,6 +63,8 @@ function update-warrantyinfo {
         ITGlue { $WarrantyStatus = Get-WarrantyITG -ITGAPIKey $ITGlueAPIKey -ITGAPIURL $ITGlueAPIURL -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Nable { $WarrantyStatus =  Get-WarrantyNable -NableURL $NableURL -JWTKey $NableJWT | Sort-Object -Property Client }
+        DattoRMM { $WarrantyStatus =  Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+
     }
    
     if ($GenerateReports -eq $true) {
