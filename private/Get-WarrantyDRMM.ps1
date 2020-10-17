@@ -19,7 +19,7 @@ function  Get-WarrantyDattoRMM {
     # Provide API Parameters
     $params = @{
         Url       = $DRMMApiURL
-        Key       = $DRRMAPIKey
+        Key       = $DRMMAPIKey
         SecretKey = $DRMMSecret
     }
 
