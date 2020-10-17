@@ -33,6 +33,15 @@ function  Get-WarrantyCWM {
             8 { $WarState = get-LenovoWarranty -SourceDevice $device.serialnumber -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $device.serialnumber -client $Client }
             12 { $WarState = Get-MSWarranty  -SourceDevice $device.serialnumber -client $Client }
+            default { [PSCustomObject]@{
+                'Serial'                = $device.serialnumber
+                'Warranty Product name' = 'Could not get warranty information.'
+                'StartDate'             = $null
+                'EndDate'               = $null
+                'Warranty Status'       = 'Could not get warranty information'
+                'Client'                = $Client
+            }
+        }
         }
         if ($script:SyncWithSource -eq $true) {
             if (!$device.warrantyExpirationDate) {

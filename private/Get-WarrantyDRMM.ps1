@@ -39,6 +39,16 @@ function  Get-WarrantyDattoRMM {
             8 { $WarState = get-LenovoWarranty -SourceDevice $DeviceSerial -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $DeviceSerial -client $Client }
             12 { $WarState = Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client }
+            default {
+                [PSCustomObject]@{
+                    'Serial'                = $DeviceSerial
+                    'Warranty Product name' = 'Could not get warranty information.'
+                    'StartDate'             = $null
+                    'EndDate'               = $null
+                    'Warranty Status'       = 'Could not get warranty information'
+                    'Client'                = $Client
+                }
+            }
         }
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {

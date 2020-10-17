@@ -19,7 +19,7 @@ function  Get-WarrantyITG {
     Add-ITGlueAPIKey  $ITGAPIKey
     write-host "Getting IT-Glue configuration list" -foregroundColor green
     $i = 0
-    $AllITGlueConfigs =  do {
+    $AllITGlueConfigs = do {
         $ITGlueConfigs = (Get-ITglueconfigurations -page_size 1000 -page_number $i).data
         $i++
         $ITGlueConfigs
@@ -35,6 +35,16 @@ function  Get-WarrantyITG {
             8 { $WarState = get-LenovoWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client }
             12 { $WarState = Get-MSWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client }
+            default {
+                [PSCustomObject]@{
+                    'Serial'                = $device.attributes.'serial-number'
+                    'Warranty Product name' = 'Could not get warranty information.'
+                    'StartDate'             = $null
+                    'EndDate'               = $null
+                    'Warranty Status'       = 'Could not get warranty information'
+                    'Client'                = $Client
+                }
+            }
         }
         if ($SyncWithSource -eq $true) {
             $FlexAssetBody = @{

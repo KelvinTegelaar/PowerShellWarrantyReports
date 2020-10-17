@@ -1,5 +1,5 @@
 function get-AppleWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
-    
+    #Apple uses estimates
     if ($AppleWarranty) {
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
