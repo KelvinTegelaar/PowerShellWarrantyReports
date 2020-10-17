@@ -6,7 +6,7 @@ function Get-WarrantyAutotask {
         [boolean]$SyncWithSource,
         [boolean]$OverwriteWarranty
     )
-    If (Get-Module -ListAvailable -Name "AutoTaskAPI") { Import-module "AutotaskAPI" } Else { install-module "Autotask" -Force }
+    If (Get-Module -ListAvailable -Name "AutoTaskAPI") { Import-module "AutotaskAPI" } Else { install-module "AutotaskAPI" -Force }
     Import-Module AutotaskAPI
     Add-AutotaskAPIAuth -ApiIntegrationcode $AutotaskAPIKey -credentials $AutotaskCredentials
     write-host "Logging into Autotask. Grabbing all client information." -ForegroundColor "Green"
