@@ -25,7 +25,7 @@ An unchecked box means development for this is underway
 - [ ] Solarwinds RMM
 - [ ] NinjaRMM (Reporting only)
 - [ ] SyncroRMM
-- [ ] DattoRMM
+- [x] DattoRMM
 - [ ] Connectwise Automate
 
 # Supported Manufacturers
