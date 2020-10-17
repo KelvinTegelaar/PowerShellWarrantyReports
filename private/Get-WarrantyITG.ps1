@@ -34,7 +34,11 @@ function  Get-WarrantyITG {
             7 { $WarState = get-DellWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
             8 { $WarState = get-LenovoWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client }
-            12 { $WarState = Get-MSWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client }
+            12 { $WarState = if ($serial -match "^\d+$") { 
+                Get-MSWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client 
+            } else {
+                Get-AppleWarranty -SourceDevice $device.attributes.'serial-number' -client $Client
+            } }
             default {
                 [PSCustomObject]@{
                     'Serial'                = $device.attributes.'serial-number'

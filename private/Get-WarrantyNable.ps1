@@ -43,7 +43,11 @@ function  Get-WarrantyNable {
             7 { $WarState = get-DellWarranty -SourceDevice $device.serial -client $Client }
             8 { $WarState = get-LenovoWarranty -SourceDevice $device.serial -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $device.serial -client $Client }
-            12 { $WarState = Get-MSWarranty  -SourceDevice $device.serial -client $Client }
+            12 { $WarState = if ($serial -match "^\d+$") { 
+                Get-MSWarranty  -SourceDevice $device.serial -client $Client 
+            } else {
+                Get-AppleWarranty -SourceDevice $device.Serial -client $Client
+            } }
             default {
                 [PSCustomObject]@{
                     'Serial'                = $device.Serial

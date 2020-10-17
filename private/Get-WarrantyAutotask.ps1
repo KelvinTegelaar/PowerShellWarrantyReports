@@ -26,7 +26,11 @@ function Get-WarrantyAutotask {
             7 { $WarState = get-DellWarranty -SourceDevice $device.SerialNumber -client $Client }
             8 { $WarState = get-LenovoWarranty -SourceDevice $device.SerialNumber -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $device.SerialNumber -client $Client }
-            12 { $WarState = Get-MSWarranty  -SourceDevice $device.SerialNumber -client $Client }
+            12 { $WarState = if ($serial -match "^\d+$") { 
+                Get-MSWarranty  -SourceDevice $device.serialnumber -client $Client 
+            } else {
+                Get-AppleWarranty -SourceDevice $device.serialnumber -client $Client
+            } }
             default { [PSCustomObject]@{
                 'Serial'                = $device.serialnumber
                 'Warranty Product name' = 'Could not get warranty information.'

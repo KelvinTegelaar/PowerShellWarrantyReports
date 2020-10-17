@@ -38,7 +38,11 @@ function  Get-WarrantyDattoRMM {
             7 { $WarState = get-DellWarranty -SourceDevice $DeviceSerial -client $Client }
             8 { $WarState = get-LenovoWarranty -SourceDevice $DeviceSerial -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $DeviceSerial -client $Client }
-            12 { $WarState = Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client }
+            12 { $WarState = if ($serial -match "^\d+$") { 
+                Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client 
+            } else {
+                Get-AppleWarranty -SourceDevice $DeviceSerial -client $Client
+            } }
             default {
                 [PSCustomObject]@{
                     'Serial'                = $DeviceSerial

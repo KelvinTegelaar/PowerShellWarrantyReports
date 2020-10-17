@@ -7,6 +7,7 @@ function  Get-WarrantyCSV($sourcefile) {
             Dell { get-DellWarranty -SourceDevice $line.SerialNumber -Client $line.client }
             Lenovo { get-LenovoWarranty -SourceDevice $line.SerialNumber -Client $line.client }
             MS { Get-MSWarranty -SourceDevice $line.SerialNumber -Client $line.client }
+            Apple { get-AppleWarranty -SourceDevice $line.serialnumber -client $line.client }
         }
     }
     return $warrantyObject
