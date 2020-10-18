@@ -78,11 +78,14 @@ function update-warrantyinfo {
                 New-HTMLTab -Name 'Warranty of devices' {
                     New-HTMLSection -Invisible {
                         New-HTMLSection -HeaderText "Currently in warranty" {
-                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -eq 'OK'})
+                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -eq 'OK' })
                         }
                         New-HTMLSection -HeaderText "Devices out of Warranty or unknown" {
-                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -ne 'OK'})
+                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -ne 'OK' })
                         }
+                    }
+                    New-HTMLSection -HeaderText "All devices" {
+                        New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client})
                     }
                 }
               
