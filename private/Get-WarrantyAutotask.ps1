@@ -19,28 +19,8 @@ function Get-WarrantyAutotask {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serialnumber). Device $i of $($Alldevices.Count)" -percentComplete ($i / $Alldevices.Count * 100)
         $Client = ($AllClients | Where-Object { $_.id -eq $device.companyID }).CompanyName
-        #We use a guess-smart method for serialnumbers. 
-        #Dell is always 7, Lenovo is always 8, 10 is HP, 12 is Surface. 
-        #This is because we cannot safely find the manafacture in the AT info.
-        switch ($device.SerialNumber.Length) {
-            7 { $WarState = get-DellWarranty -SourceDevice $device.SerialNumber -client $Client }
-            8 { $WarState = get-LenovoWarranty -SourceDevice $device.SerialNumber -client $Client }
-            10 { $WarState = get-HPWarranty  -SourceDevice $device.SerialNumber -client $Client }
-            12 { $WarState = if ($serial -match "^\d+$") { 
-                Get-MSWarranty  -SourceDevice $device.serialnumber -client $Client 
-            } else {
-                Get-AppleWarranty -SourceDevice $device.serialnumber -client $Client
-            } }
-            default { [PSCustomObject]@{
-                'Serial'                = $device.serialnumber
-                'Warranty Product name' = 'Could not get warranty information.'
-                'StartDate'             = $null
-                'EndDate'               = $null
-                'Warranty Status'       = 'Could not get warranty information'
-                'Client'                = $Client
-            }
-        }
-        }
+        $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $Client
+
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {
                 $true {

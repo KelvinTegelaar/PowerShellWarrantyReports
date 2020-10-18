@@ -27,26 +27,8 @@ function  Get-WarrantyCWM {
     $warrantyObject = foreach ($device in $Devices) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serialnumber). Device $i of $($devices.Count)" -percentComplete ($i / $Devices.Count * 100)
-        $client = $device.company.name
-        switch ($device.serialnumber.Length) {
-            7 { $WarState = get-DellWarranty -SourceDevice $device.serialnumber -client $Client }
-            8 { $WarState = get-LenovoWarranty -SourceDevice $device.serialnumber -client $Client }
-            10 { $WarState = get-HPWarranty  -SourceDevice $device.serialnumber -client $Client }
-            12 { $WarState = if ($serial -match "^\d+$") { 
-                Get-MSWarranty  -SourceDevice $device.serialnumber -client $Client 
-            } else {
-                Get-AppleWarranty -SourceDevice $device.serialnumber -client $Client
-            } }
-            default { [PSCustomObject]@{
-                'Serial'                = $device.serialnumber
-                'Warranty Product name' = 'Could not get warranty information.'
-                'StartDate'             = $null
-                'EndDate'               = $null
-                'Warranty Status'       = 'Could not get warranty information'
-                'Client'                = $Client
-            }
-        }
-        }
+        $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $device.company.name
+
         if ($script:SyncWithSource -eq $true) {
             if (!$device.warrantyExpirationDate) {
                 $device | Add-Member -NotePropertyName "warrantyExpirationDate" -NotePropertyValue "$($WarState.enddate)T00:00:00Z"

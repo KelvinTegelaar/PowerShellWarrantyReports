@@ -39,34 +39,13 @@ function  Get-WarrantyDattoRMM {
         }
         catch {
             write-host "Could not retrieve serialnumber for $device"
+            continue
         }
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($DeviceSerial). Device $i of $($AllDevices.Count)" -percentComplete ($i / $AllDevices.Count * 100)
-        $client = $device.siteName
-       
-        switch ($DeviceSerial.Length) {
-            7 { $WarState = get-DellWarranty -SourceDevice $DeviceSerial -client $Client }
-            8 { $WarState = get-LenovoWarranty -SourceDevice $DeviceSerial -client $Client }
-            10 { $WarState = get-HPWarranty  -SourceDevice $DeviceSerial -client $Client }
-            12 {
-                $WarState = if ($serial -match "^\d+$") { 
-                    Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client 
-                }
-                else {
-                    Get-AppleWarranty -SourceDevice $DeviceSerial -client $Client
-                } 
-            }
-            default {
-                [PSCustomObject]@{
-                    'Serial'                = $DeviceSerial
-                    'Warranty Product name' = 'Could not get warranty information.'
-                    'StartDate'             = $null
-                    'EndDate'               = $null
-                    'Warranty Status'       = 'Could not get warranty information'
-                    'Client'                = $Client
-                }
-            }
-        }
+
+        $WarState = Get-Warrantyinfo -DeviceSerial $DeviceSerial -client $device.siteName
+
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {
                 $true {

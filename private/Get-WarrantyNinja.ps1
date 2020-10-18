@@ -25,26 +25,8 @@ function  Get-WarrantyNinja {
     $warrantyObject = foreach ($device in $Devices) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serial). Device $i of $($Devices.Count)" -percentComplete ($i / $Devices.Count * 100)
-        $client = $device.client
-        switch ($device.serial.length) {
-            7 { $WarState = get-DellWarranty -SourceDevice $device.serial -client $Client }
-            8 { $WarState = get-LenovoWarranty -SourceDevice $device.serial -client $Client }
-            10 { $WarState = get-HPWarranty  -SourceDevice $device.serial -client $Client }
-            12 { $WarState = if ($serial -match "^\d+$") { 
-                Get-MSWarranty  -SourceDevice $device.serial -client $Client 
-            } else {
-                Get-AppleWarranty -SourceDevice $device.serial -client $Client
-            } }
-            default { [PSCustomObject]@{
-                'Serial'                = $device.serial
-                'Warranty Product name' = 'Could not get warranty information.'
-                'StartDate'             = $null
-                'EndDate'               = $null
-                'Warranty Status'       = 'Could not get warranty information'
-                'Client'                = $Client
-            }
-        }
-        }
+        $WarState =  Get-Warrantyinfo -DeviceSerial $device.serial -client $device.client
+
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {
                 $true {

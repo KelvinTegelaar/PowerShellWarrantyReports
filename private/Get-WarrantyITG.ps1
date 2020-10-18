@@ -29,27 +29,7 @@ function  Get-WarrantyITG {
     $warrantyObject = foreach ($device in $AllITGlueConfigs) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.attributes.'serial-number'). Device $i of $($AllITGlueConfigs.Count)" -percentComplete ($i / $AllITGlueConfigs.Count * 100)
-        $client = $device.attributes.'organization-name'
-        switch ($device.attributes.'serial-number'.Length) {
-            7 { $WarState = get-DellWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
-            8 { $WarState = get-LenovoWarranty -SourceDevice $device.attributes.'serial-number' -client $Client }
-            10 { $WarState = get-HPWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client }
-            12 { $WarState = if ($serial -match "^\d+$") { 
-                Get-MSWarranty  -SourceDevice $device.attributes.'serial-number' -client $Client 
-            } else {
-                Get-AppleWarranty -SourceDevice $device.attributes.'serial-number' -client $Client
-            } }
-            default {
-                [PSCustomObject]@{
-                    'Serial'                = $device.attributes.'serial-number'
-                    'Warranty Product name' = 'Could not get warranty information.'
-                    'StartDate'             = $null
-                    'EndDate'               = $null
-                    'Warranty Status'       = 'Could not get warranty information'
-                    'Client'                = $Client
-                }
-            }
-        }
+        $WarState = Get-Warrantyinfo -DeviceSerial $device.attributes.'serial-number' -client $device.attributes.'organization-name'
         if ($SyncWithSource -eq $true) {
             $FlexAssetBody = @{
                 "type"       = "configurations"
