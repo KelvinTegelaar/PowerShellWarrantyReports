@@ -73,7 +73,7 @@ function update-warrantyinfo {
         $CheckReportFolder = Test-Path($ReportsLocation)
         if (!$CheckReportFolder) { new-item -ItemType Directory -Path $ReportsLocation -Force }
         foreach ($client in $WarrantyStatus.client | Select-Object -Unique) {
-            write-host "Generating report for $Client at $($ReportsLocation)\$client.html" -ForegroundColor Green
+            write-host "Generating report for $Client at $($ReportsLocation)$client.html" -ForegroundColor Green
             New-HTML {   
                 New-HTMLTab -Name 'Warranty of devices' {
                     New-HTMLSection -Invisible {
