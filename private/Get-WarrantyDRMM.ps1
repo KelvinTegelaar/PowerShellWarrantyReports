@@ -29,7 +29,17 @@ function  Get-WarrantyDattoRMM {
     $AllDevices = Get-DrmmAccountDevices
     $i = 0
     $warrantyObject = foreach ($device in $AllDevices) {
-        $DeviceSerial = (Get-DrmmAuditDevice -deviceUid $device.uid).bios.serialnumber
+        try {
+            if ($Device.DeviceClass -eq 'esxihost') {
+                $DeviceSerial = (Get-DrmmAuditesxi  -deviceUid $device.uid).systeminfo.servicetag
+            }
+            else {
+                $DeviceSerial = (Get-DrmmAuditDevice -deviceUid $device.uid).bios.serialnumber
+            }
+        }
+        catch {
+            write-host "Could not retrieve serialnumber for $device"
+        }
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($DeviceSerial). Device $i of $($AllDevices.Count)" -percentComplete ($i / $AllDevices.Count * 100)
         $client = $device.siteName
@@ -38,11 +48,14 @@ function  Get-WarrantyDattoRMM {
             7 { $WarState = get-DellWarranty -SourceDevice $DeviceSerial -client $Client }
             8 { $WarState = get-LenovoWarranty -SourceDevice $DeviceSerial -client $Client }
             10 { $WarState = get-HPWarranty  -SourceDevice $DeviceSerial -client $Client }
-            12 { $WarState = if ($serial -match "^\d+$") { 
-                Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client 
-            } else {
-                Get-AppleWarranty -SourceDevice $DeviceSerial -client $Client
-            } }
+            12 {
+                $WarState = if ($serial -match "^\d+$") { 
+                    Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client 
+                }
+                else {
+                    Get-AppleWarranty -SourceDevice $DeviceSerial -client $Client
+                } 
+            }
             default {
                 [PSCustomObject]@{
                     'Serial'                = $DeviceSerial
