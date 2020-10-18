@@ -76,10 +76,14 @@ function update-warrantyinfo {
             write-host "Generating report for $Client at $($ReportsLocation)\$client.html" -ForegroundColor Green
             New-HTML {   
                 New-HTMLTab -Name 'Warranty of devices' {
-                    New-HTMLSection -HeaderText "$($client)" {
-                        New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client })
+                    New-HTMLSection -Invisible {
+                        New-HTMLSection -HeaderText "Currently in warranty" {
+                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -eq 'OK'})
+                        }
+                        New-HTMLSection -HeaderText "Devices out of Warranty or unknown" {
+                            New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client -and $_.'Warranty Status' -ne 'OK'})
+                        }
                     }
-                    
                 }
               
             } -FilePath "$($ReportsLocation)\$client.html" -Online
