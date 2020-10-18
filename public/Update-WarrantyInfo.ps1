@@ -73,6 +73,7 @@ function update-warrantyinfo {
         $CheckReportFolder = Test-Path($ReportsLocation)
         if (!$CheckReportFolder) { new-item -ItemType Directory -Path $ReportsLocation -Force }
         foreach ($client in $WarrantyStatus.client | Select-Object -Unique) {
+            $Client = $Client.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
             write-host "Generating report for $Client at $($ReportsLocation)$client.html" -ForegroundColor Green
             New-HTML {   
                 New-HTMLTab -Name 'Warranty of devices' {
@@ -88,7 +89,6 @@ function update-warrantyinfo {
                         New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client})
                     }
                 }
-              
             } -FilePath "$($ReportsLocation)\$client.html" -Online
 
         }
