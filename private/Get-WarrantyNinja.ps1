@@ -4,6 +4,7 @@ function  Get-WarrantyNinja {
         [string]$NinjaURL,
         [String]$Secretkey,
         [boolean]$AccessKey,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
     $Date = (Get-Date -Format r)

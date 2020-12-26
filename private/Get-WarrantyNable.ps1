@@ -4,6 +4,7 @@ function  Get-WarrantyNable {
         [string]$NableURL,
         [String]$JWTKey,
         [boolean]$SyncWithSource,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
 

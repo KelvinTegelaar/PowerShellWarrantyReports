@@ -5,6 +5,7 @@ function  Get-WarrantyDattoRMM {
         [String]$DRMMApiURL,
         [String]$DRMMSecret,
         [boolean]$SyncWithSource,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
     write-host "Source is Datto RMM. Grabbing all devices." -ForegroundColor Green

@@ -6,6 +6,7 @@ function  Get-WarrantyCWM {
         [String]$CWMpiKeyprivate,
         [string]$CWMAPIURL,
         [boolean]$SyncWithSource,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
     write-host "Source is Connectwise Manage. Grabbing all devices." -ForegroundColor Green

@@ -4,6 +4,7 @@ function Get-WarrantyAutotask {
         [Pscredential]$AutotaskCredentials,
         [String]$AutotaskAPIKey,
         [boolean]$SyncWithSource,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
     If (Get-Module -ListAvailable -Name "AutoTaskAPI") { Import-module "AutotaskAPI" } Else { install-module "AutotaskAPI" -Force }

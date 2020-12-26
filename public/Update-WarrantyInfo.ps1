@@ -44,6 +44,8 @@ function update-warrantyinfo {
         [Parameter(Mandatory = $false)]
         [Switch]$SyncWithSource,
         [Parameter(Mandatory = $false)]
+        [Switch]$MissingOnly,
+        [Parameter(Mandatory = $false)]
         [switch]$OverwriteWarranty,
         [Parameter(ParameterSetName = 'Logs', Mandatory = $false)]
         [switch]$LogActions,
@@ -58,12 +60,12 @@ function update-warrantyinfo {
     )
     $script:LogPath = $LogFile
     switch ($PSBoundParameters.Keys) {
-        Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         CSV { $WarrantyStatus = Get-WarrantyCSV -Sourcefile $CSVFilePath | Sort-Object -Property Client }
-        ITGlue { $WarrantyStatus = Get-WarrantyITG -ITGAPIKey $ITGlueAPIKey -ITGAPIURL $ITGlueAPIURL -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
-        CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        ITGlue { $WarrantyStatus = Get-WarrantyITG -ITGAPIKey $ITGlueAPIKey -ITGAPIURL $ITGlueAPIURL -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Nable { $WarrantyStatus = Get-WarrantyNable -NableURL $NableURL -JWTKey $NableJWT | Sort-Object -Property Client }
-        DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
 
     }
    

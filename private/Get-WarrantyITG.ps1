@@ -4,6 +4,7 @@ function  Get-WarrantyITG {
         [string]$ITGAPIKey,
         [String]$ITGAPIURL,
         [boolean]$SyncWithSource,
+        [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
     write-host "Source is IT-Glue. Grabbing all devices." -ForegroundColor Green
