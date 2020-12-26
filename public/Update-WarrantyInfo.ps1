@@ -92,7 +92,7 @@ function update-warrantyinfo {
                     }
                 }
             } -FilePath "$($ReportsLocation)\$client.html" -Online
-
+            ($WarrantyStatus | Where-Object { $_.Client -eq $client}) | Export-Csv "$($ReportsLocation)\$client.html" -NoTypeInformation -Force
         }
     }
 
