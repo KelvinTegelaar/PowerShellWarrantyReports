@@ -5,12 +5,12 @@ function get-ToshibaWarranty
     $Req = Invoke-RestMethod -Uri $APIURL -Method get
     if ($req.commonBean) {
         #$warlatest = $Req.EndDate | sort-object | select-object -last 1 
-        $WarrantyState = if ($req.commonBean.warrantyExpiryDate -le $today) { "Expired" } else { "OK" }       
+        $WarrantyState = if ($req.commonBean.warrantyExpiryDate -le $today) { "Expired" } else { "OK" }   
         $WarObj = [PSCustomObject]@{
             'Serial'                = $req.commonBean.serialNumber
             'Warranty Product name' = ($Req.serviceTypes.Carry.svcDesc -replace '<[^>]+>','')
-            'StartDate'             = $req.commonBean.warOnsiteDate
-            'EndDate'               = $req.commonBean.warrantyExpiryDate
+            'StartDate'             = [DateTime]::ParseExact($($req.commonBean.warOnsiteDate), 'yyyy-MM-dd HH:mm:ss.f', $null)
+            'EndDate'               = [DateTime]::ParseExact($($req.commonBean.warrantyExpiryDate), 'yyyy-MM-dd HH:mm:ss.f', $null)
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }

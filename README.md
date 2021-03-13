@@ -44,19 +44,22 @@ Due to a change in how Apple generates serial numbers it is no longer possible t
 To execute an update of all devices in Autotask use:
 
     $Creds = get-credential  
-    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -SyncWithSource -OverwriteWarranty -ExcludeApple
+    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -SyncWithSource -OverwriteWarranty
 
 This script will then update all devices in Autotask with the date found in the APIs. If they date returned is invalid it will not update. If the date is already filled in, it will overwrite this.
 
 To only generate HTML reports use
 
     $Creds = get-credential  
-    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ExcludeApple
+    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports
 
 This will generate the reports in C:\Temp. To set the path yourself use
 
-       update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ExcludeApple -ReportsLocation "C:\OtherFolder"
+       update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ReportsLocation "C:\OtherFolder"
 
+To update Hudu, first edit the asset layout of the devices you wish to update to add a new field. If you wish to use expirations and not have apple devices, choose a date field and enable add to expirations. If you wish to have apple devices you will need to make this a string field and not use expirations. Make a note of the name of the field and the name of the asset layout then call the script:
+
+        update-warrantyinfo -Hudu -HuduAPIKey "YourAPIKey" -HuduBaseURL "YourHuduDomain" -HuduDeviceAssetLayout "Desktops / Laptops" -HuduWarrantyField "Warranty Expiry" -SyncWithSource -OverwriteWarranty -ExcludeApple 
 
 # Contributions
 

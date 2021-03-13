@@ -29,12 +29,12 @@ function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) 
     $WarReq = Invoke-RestMethod -Uri "https://apigtwb2c.us.dell.com/PROD/sbil/eapi/v5/asset-entitlements" -Headers $headersReq -Body $ReqBody -Method Get -ContentType "application/json"
     $warlatest = $warreq.entitlements.enddate | sort-object | select-object -last 1 
     $WarrantyState = if ($warlatest -le $today) { "Expired" } else { "OK" }
-    if ($warreq.entitlements.serviceleveldescription) {
+    if ($warlatest) {
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $warreq.entitlements.serviceleveldescription -join "`n"
-            'StartDate'             = (($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]
-            'EndDate'               = (($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]
+            'StartDate'             = [DateTime]::ParseExact($((($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
+            'EndDate'               = [DateTime]::ParseExact($((($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }

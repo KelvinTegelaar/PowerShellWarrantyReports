@@ -38,26 +38,22 @@ function  Get-WarrantyHudu {
 
     $warrantyObject = foreach ($device in $Devices) {
         $i++
-        Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.primary_serial). Device $i of $($devices.Count)" -percentComplete ($i / $Devices.Count * 100)
+        Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.primary_serial). Device $i of $($devices.Count)" -percentComplete ($i / $Devices.Count * 100)      
         $WarState = Get-Warrantyinfo -DeviceSerial $device.primary_serial -client $device.company_name
 
-        if ($SyncWithSource -eq $true) {
-            $field = $device.fields | where-object {$_.label -eq $HuduWarrantyField}
-            if ($field){
-                #Handle existing expiry date
-                $device.fields | where-object {$_.label -eq $HuduWarrantyField} | ForEach-Object {$_.value = "$($WarState.enddate)"}
-            } else {
-                if($device.fields){
-                    #Handle existing fields but no expiry date
-                    $device.fields | Add-Member -NotePropertyName $HuduProcessedFieldName  -NotePropertyValue "$($WarState.enddate)"
-                } else {
-                    #Handle no existing fields
-                    $device.fields = @{
-                        "$HuduProcessedFieldName" = "$($WarState.enddate)"
-                    }
-                }    
+        if ($WarState.enddate){
+            if($(($WarState.enddate).GetType().name) -eq "DateTime" ){
+                $WarState.enddate =  $WarState.enddate.ToString("o")
             }
-            switch ($OverwriteWarranty) {
+        }
+
+        if ($SyncWithSource -eq $true) {
+                $field = $device.fields | where-object {$_.label -eq $HuduWarrantyField}
+                $device.fields = @{
+                        "$HuduProcessedFieldName" = "$($WarState.enddate)"
+                    }            
+            
+                switch ($OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
                         $null = set-huduasset -name $device.name -company_id $device.company_id -asset_layout_id $layout.id -fields $device.fields -asset_id $device.id

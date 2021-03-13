@@ -22,8 +22,9 @@ function Get-MSWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client) {
         Data = $bodyenc
         Key  = $EncKey
     } | ConvertTo-Json
-     
+    
     $WarReq = Invoke-RestMethod -uri "https://surfacewarrantyservice.azurewebsites.net/api/v2/warranty" -Method POST -body $FullBody -ContentType "application/json"
+    
     if ($WarReq.warranties) {
         $WarrantyState = foreach ($War in ($WarReq.warranties.effectiveenddate -split 'T')[0]) {
             if ($War -le $today) { "Expired" } else { "OK" }
@@ -31,8 +32,8 @@ function Get-MSWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client) {
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $WarReq.warranties.name -join "`n"
-            'StartDate'             = (($WarReq.warranties.effectivestartdate | sort-object -Descending | select-object -last 1) -split 'T')[0]
-            'EndDate'               = (($WarReq.warranties.effectiveenddate | sort-object | select-object -last 1) -split 'T')[0]
+            'StartDate'             = [DateTime]::ParseExact($((($WarReq.warranties.effectivestartdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
+            'EndDate'               = [DateTime]::ParseExact($((($WarReq.warranties.effectiveenddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
