@@ -23,7 +23,7 @@ function  Get-Warrantyinfo {
             9 { get-ToshibaWarranty -SourceDevice $DeviceSerial -client $line.client }
             10 { get-HPWarranty  -SourceDevice $DeviceSerial -client $Client }
             12 {
-                if ($serial -match "^\d+$") { 
+                if ($DeviceSerial -match "^\d+$") {
                     Get-MSWarranty  -SourceDevice $DeviceSerial -client $Client 
                 }
                 else {
