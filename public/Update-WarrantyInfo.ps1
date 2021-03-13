@@ -66,8 +66,11 @@ function update-warrantyinfo {
         [Parameter(Mandatory = $false)]
         [switch]$ReturnWarrantyObject,
         [Parameter(Mandatory = $false)]
+        [switch]$ExcludeApple,
+        [Parameter(Mandatory = $false)]
         [String]$ReportsLocation = "C:\Temp\"
     )
+    $script:ExcludeApple = $ExcludeApple
     $script:LogPath = $LogFile
     switch ($PSBoundParameters.Keys) {
         Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }

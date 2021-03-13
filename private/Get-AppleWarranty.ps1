@@ -85,7 +85,7 @@ function get-AppleWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client)
     }
     $ManafactureDateSerial = $SourceDevice[3]
     $AppleWarranty = $ManafactureDateEstimate.$ManafactureDateSerial
-    if ($AppleWarranty) {
+    if ($AppleWarranty -and $script:ExcludeApple -eq $false) {
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = "This warranty end date is an estimate."

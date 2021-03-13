@@ -18,7 +18,10 @@ An unchecked box means development for this is underway
 ## PSA    
 - [x] Autotask
 - [x] Connectwise Manage
-- [x] IT-Glue (Yes, I know its not a PSA, but where else would I put this?)
+
+## Documentation Tools
+- [x] IT-Glue
+- [X] Hudu
 
 ## RMM
 - [x] Solarwinds N-Able (Reporting only)
@@ -36,22 +39,23 @@ An unchecked box means development for this is underway
 - [x] Apple (Estimated dates)
 
 # Usage
+Due to a change in how Apple generates serial numbers it is no longer possible to accurately determine the warranty expiry for newer devices. As such any new Apple devices could return a completely inaccurate expiry date. To account for this you can add the -ExcludeApple switch to the the Update-Warrantyinfo.ps1 script to skip updating any apple devices and ensure you do not update with inaccurate data.
 
 To execute an update of all devices in Autotask use:
 
     $Creds = get-credential  
-    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -SyncWithSource -OverwriteWarranty
+    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -SyncWithSource -OverwriteWarranty -ExcludeApple
 
 This script will then update all devices in Autotask with the date found in the APIs. If they date returned is invalid it will not update. If the date is already filled in, it will overwrite this.
 
 To only generate HTML reports use
 
     $Creds = get-credential  
-    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports
+    update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ExcludeApple
 
 This will generate the reports in C:\Temp. To set the path yourself use
 
-       update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ReportsLocation "C:\OtherFolder"
+       update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ExcludeApple -ReportsLocation "C:\OtherFolder"
 
 
 # Contributions
