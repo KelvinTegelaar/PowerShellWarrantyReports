@@ -2,7 +2,17 @@ function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
     $MWSID = (invoke-restmethod -uri 'https://support.hp.com/us-en/checkwarranty/multipleproducts/' -SessionVariable 'session' -Method get) -match '.*mwsid":"(?<wssid>.*)".*'
     $HPBody = " { `"gRecaptchaResponse`":`"`", `"obligationServiceRequests`":[ { `"serialNumber`":`"$SourceDevice`", `"isoCountryCde`":`"US`", `"lc`":`"EN`", `"cc`":`"US`", `"modelNumber`":null }] }"
  
-    $HPReq = Invoke-RestMethod -Uri "https://support.hp.com/hp-pps-services/os/multiWarranty?ssid=$($matches.wssid)" -WebSession $session -Method "POST" -ContentType "application/json" -Body $HPbody
+    try{ 
+        $HPReq = Invoke-RestMethod -Uri "https://support.hp.com/hp-pps-services/os/multiWarranty?ssid=$($matches.wssid)" -WebSession $session -Method "POST" -ContentType "application/json" -Body $HPbody 
+    }
+    catch{
+        $HPReq = $null
+        if ($script:HPNotified -eq $false){
+        write-host "HP Requests currently failing: No HP data will be returned. The HP API is currently spotty. A new API will be coming `"soon`"" -ForegroundColor Red
+        $script:HPNotified = $true
+        }
+    }
+
     if ($HPreq.productWarrantyDetailsVO.warrantyResultList.obligationStartDate) {
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice

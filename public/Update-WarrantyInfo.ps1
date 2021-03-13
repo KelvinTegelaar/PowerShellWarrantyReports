@@ -70,6 +70,7 @@ function update-warrantyinfo {
         [Parameter(Mandatory = $false)]
         [String]$ReportsLocation = "C:\Temp\"
     )
+    $script:HPNotified = $false
     $script:ExcludeApple = $ExcludeApple
     $script:LogPath = $LogFile
     switch ($PSBoundParameters.Keys) {
