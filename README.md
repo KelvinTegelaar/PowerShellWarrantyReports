@@ -38,9 +38,10 @@ An unchecked box means development for this is underway
 - [x] Lenovo
 - [x] Apple (Estimated dates)
 
-# Usage
+# Apple Note
 Due to a change in how Apple generates serial numbers it is no longer possible to accurately determine the warranty expiry for newer devices. As such any new Apple devices could return a completely inaccurate expiry date. To account for this you can add the -ExcludeApple switch to the the Update-Warrantyinfo.ps1 script to skip updating any apple devices and ensure you do not update with inaccurate data.
 
+# Usage
 To execute an update of all devices in Autotask use:
 
     $Creds = get-credential  
