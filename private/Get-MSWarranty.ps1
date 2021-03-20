@@ -1,7 +1,7 @@
-function Get-MSWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client) {
+function Get-MSWarranty([Parameter(Mandatory = $true)][string]$SourceDevice, $client) {
     $body = ConvertTo-Json @{
         sku          = "Surface_"
-        SerialNumber = $SourceDevice
+        SerialNumber = "$SourceDevice"
         ForceRefresh = $false
     }
     $today = Get-Date -Format yyyy-MM-dd
