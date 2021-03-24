@@ -8,8 +8,8 @@ function get-LenovoWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client
         $WarObj = [PSCustomObject]@{
             'Serial'                = $Req.Serial
             'Warranty Product name' = $Req.WarProduct
-            'StartDate'             = [DateTime]::ParseExact($Req.StartDate, 'MM/dd/yyyy HH:mm:ss', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
-            'EndDate'               = [DateTime]::ParseExact($Req.EndDate, 'MM/dd/yyyy HH:mm:ss', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
+            'StartDate'             = [DateTime]($Req.StartDate)
+            'EndDate'               = [DateTime]($Req.EndDate)
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
