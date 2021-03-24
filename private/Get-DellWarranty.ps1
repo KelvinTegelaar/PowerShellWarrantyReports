@@ -30,11 +30,13 @@ function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) 
     $warlatest = $warreq.entitlements.enddate | sort-object | select-object -last 1 
     $WarrantyState = if ($warlatest -le $today) { "Expired" } else { "OK" }
     if ($warlatest) {
+        $StartDate = [string](($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T' | Select-Object -first 1).trim()
+        $EndDate = [string](($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T' | Select-Object -first 1).trim()
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $warreq.entitlements.serviceleveldescription -join "`n"
-            'StartDate'             = (($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]
-            'EndDate'               = (($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]
+            'StartDate'             = [DateTime]::ParseExact($StartDate, 'yyyy-MM-dd', $null)
+            'EndDate'               = [DateTime]::ParseExact($EndDate, 'yyyy-MM-dd', $null)
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
