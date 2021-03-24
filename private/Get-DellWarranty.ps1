@@ -33,8 +33,8 @@ function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) 
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $warreq.entitlements.serviceleveldescription -join "`n"
-            'StartDate'             = [DateTime]::ParseExact($((($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
-            'EndDate'               = [DateTime]::ParseExact($((($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
+            'StartDate'             = (($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]
+            'EndDate'               = (($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
