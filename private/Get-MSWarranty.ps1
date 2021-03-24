@@ -32,8 +32,8 @@ function Get-MSWarranty([Parameter(Mandatory = $true)][string]$SourceDevice, $cl
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $WarReq.warranties.name -join "`n"
-            'StartDate'             = [DateTime]::ParseExact($((($WarReq.warranties.effectivestartdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
-            'EndDate'               = [DateTime]::ParseExact($((($WarReq.warranties.effectiveenddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
+            'StartDate'             = [DateTime]::ParseExact($((($WarReq.warranties.effectivestartdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
+            'EndDate'               = [DateTime]::ParseExact($((($WarReq.warranties.effectiveenddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }

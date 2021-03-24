@@ -1,5 +1,5 @@
 function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
-    if($null -eq $Script:DellClientID){
+    if ($null -eq $Script:DellClientID) {
         write-error "Cannot continue: Dell API information not found. Please run Set-WarrantyAPIKeys before checking Dell Warranty information."
         return  [PSCustomObject]@{
             'Serial'                = $SourceDevice
@@ -33,8 +33,8 @@ function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) 
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $warreq.entitlements.serviceleveldescription -join "`n"
-            'StartDate'             = [DateTime]::ParseExact($((($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
-            'EndDate'               = [DateTime]::ParseExact($((($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', $null)
+            'StartDate'             = [DateTime]::ParseExact($((($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
+            'EndDate'               = [DateTime]::ParseExact($((($warreq.entitlements.enddate | sort-object | select-object -last 1) -split 'T')[0]), 'yyyy-MM-dd', [Globalization.CultureInfo]::CreateSpecificCulture('en-NL'))
             'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
