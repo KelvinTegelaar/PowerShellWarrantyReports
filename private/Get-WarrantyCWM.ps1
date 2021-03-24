@@ -18,17 +18,23 @@ function  Get-WarrantyCWM {
         'Content-Type'  = 'application/json'
     }
     $i = 0
-    $Devices = do {
-        $DeviceList = invoke-restmethod -headers $header -method GET -uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
-        $i++
-        $DeviceList
-        Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
-    }while ($devices.count % 250 -eq 0 -and $devices.count -ne 0) 
- 
+    If ($ResumeLast) {
+        write-host "Found previous run results. Starting from last object." -foregroundColor green
+        $Devices = get-content 'Devices.json' | convertfrom-json
+    }
+    else {
+        $Devices = do {
+            $DeviceList = invoke-restmethod -headers $header -method GET -uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
+            $i++
+            $DeviceList
+            Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
+        }while ($devices.count % 250 -eq 0 -and $devices.count -ne 0) 
+    }
     $warrantyObject = foreach ($device in $Devices) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serialnumber). Device $i of $($devices.Count)" -percentComplete ($i / $Devices.Count * 100)
         $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $device.company.name
+        $RemainingList = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
 
         if ($script:SyncWithSource -eq $true) {
             if (!$device.warrantyExpirationDate) {
@@ -54,5 +60,6 @@ function  Get-WarrantyCWM {
         }
         $WarState
     }
+    Remove-item 'devices.json' -Force -ErrorAction SilentlyContinue
     return $warrantyObject
 }

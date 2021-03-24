@@ -20,13 +20,19 @@ function  Get-WarrantyNinja {
     $Authorization = "NJ $AccessKeyID`:$Signature"
     # Bind to the namespace, using the Webserviceproxy
     $Header = @{"Authorization" = $Authorization; "Date" = $Date }
-
-    $Devices = Invoke-RestMethod -Method GET -Uri "https://api.ninjarmm.com/v1/devices" -Headers $Header
-
+    If ($ResumeLast) {
+        write-host "Found previous run results. Starting from last object." -foregroundColor green
+        $Devices = get-content 'Devices.json' | convertfrom-json
+    }
+    else {
+        $Devices = Invoke-RestMethod -Method GET -Uri "https://api.ninjarmm.com/v1/devices" -Headers $Header
+    }
+    $i = 0
     $warrantyObject = foreach ($device in $Devices) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serial). Device $i of $($Devices.Count)" -percentComplete ($i / $Devices.Count * 100)
-        $WarState =  Get-Warrantyinfo -DeviceSerial $device.serial -client $device.client
+        $WarState = Get-Warrantyinfo -DeviceSerial $device.serial -client $device.client
+        $RemainingList = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
 
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {
@@ -42,6 +48,7 @@ function  Get-WarrantyNinja {
         }
         $WarState
     }
+    Remove-item 'devices.json' -Force -ErrorAction SilentlyContinue
     return $warrantyObject
 
 }

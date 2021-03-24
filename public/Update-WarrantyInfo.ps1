@@ -57,10 +57,10 @@ function update-warrantyinfo {
         [Switch]$MissingOnly,
         [Parameter(Mandatory = $false)]
         [switch]$OverwriteWarranty,
-        [Parameter(ParameterSetName = 'Logs', Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$LogActions,
-        [Parameter(ParameterSetName = 'Logs', Mandatory = $false)]
-        [String]$LogFile = "C:\Temp\WarrantyUpdateLog.txt",
+        [Parameter(Mandatory = $false)]
+        [String]$LogFile = ".\WarrantyUpdateLog.txt",
         [Parameter(Mandatory = $false)]
         [switch]$GenerateReports,
         [Parameter(Mandatory = $false)]
@@ -103,11 +103,11 @@ function update-warrantyinfo {
                         }
                     }
                     New-HTMLSection -HeaderText "All devices" {
-                        New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client})
+                        New-HTMLTable -DataTable ($WarrantyStatus | Where-Object { $_.Client -eq $client })
                     }
                 }
             } -FilePath "$($ReportsLocation)\$client.html" -Online
-            ($WarrantyStatus | Where-Object { $_.Client -eq $client}) | Export-Csv "$($ReportsLocation)\$client.CSV" -NoTypeInformation -Force
+            ($WarrantyStatus | Where-Object { $_.Client -eq $client }) | Export-Csv "$($ReportsLocation)\$client.CSV" -NoTypeInformation -Force
         }
     }
 

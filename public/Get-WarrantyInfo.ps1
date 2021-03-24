@@ -5,7 +5,7 @@ function  Get-Warrantyinfo {
         [String]$client,
         [String]$vendor
     )
-
+    if ($LogActions) { add-content -path $LogFile -Value "Starting lookup for $($DeviceSerial),$($Client)" -force }
     if ($vendor) {
         switch ($vendor) {
             HP { get-HPWarranty -SourceDevice $DeviceSerial -Client $line.client }
@@ -42,4 +42,5 @@ function  Get-Warrantyinfo {
             }
         }
     }
+    if ($LogActions) { add-content -path $LogFile -Value "Ended lookup for $($DeviceSerial),$($Client)" }
 }

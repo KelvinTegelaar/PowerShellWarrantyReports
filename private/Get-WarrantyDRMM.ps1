@@ -27,7 +27,15 @@ function  Get-WarrantyDattoRMM {
     # Set API Parameters
     Set-DrmmApiParameters @params
     write-host "Getting DattoRMM Devices" -foregroundColor green
-    $AllDevices = Get-DrmmAccountDevices
+    $ResumeLast = test-path 'Devices.json'
+    If ($ResumeLast) {
+        write-host "Found previous run results. Starting from last object." -foregroundColor green
+        $AllDevices = get-content 'Devices.json' | convertfrom-json
+    }
+    else {
+        $AllDevices = Get-DrmmAccountDevices | select-object DeviceClass, uid, SiteName
+        
+    }
     $i = 0
     $warrantyObject = foreach ($device in $AllDevices) {
         try {
@@ -46,7 +54,7 @@ function  Get-WarrantyDattoRMM {
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($DeviceSerial). Device $i of $($AllDevices.Count)" -percentComplete ($i / $AllDevices.Count * 100)
 
         $WarState = Get-Warrantyinfo -DeviceSerial $DeviceSerial -client $device.siteName
-
+        $RemainingList = set-content 'Devices.json' -force -value ($AllDevices | select-object -skip $i | convertto-json -depth 5)
         if ($SyncWithSource -eq $true) {
             switch ($OverwriteWarranty) {
                 $true {
@@ -64,5 +72,6 @@ function  Get-WarrantyDattoRMM {
         }
         $WarState
     }
+    Remove-item 'devices.json' -Force -ErrorAction SilentlyContinue
     return $warrantyObject
 }
