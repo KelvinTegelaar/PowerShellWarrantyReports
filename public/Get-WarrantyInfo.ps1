@@ -3,8 +3,20 @@ function  Get-Warrantyinfo {
     Param(
         [string]$DeviceSerial,
         [String]$client,
-        [String]$vendor
+        [String]$vendor,
+        [switch]$LocalDevice
     )
+    if ($LocalDevice) {
+        $DeviceInfo = Get-CimInstance -ClassName "Win32_Bios" -Property "SerialNumber", "Manufacturer" | Select-Object "Manufacturer", "SerialNumber"
+        if ($DeviceInfo) {
+            if ($DeviceInfo.Manufacturer) {
+                $vendor = $DeviceInfo.Manufacturer
+            }
+            if ($DeviceInfo.SerialNumber) {
+                $DeviceSerial = $DeviceInfo.SerialNumber
+            }
+        }
+    }
     if ($LogActions) { add-content -path $LogFile -Value "Starting lookup for $($DeviceSerial),$($Client)" -force }
     if ($vendor) {
         switch ($vendor) {
