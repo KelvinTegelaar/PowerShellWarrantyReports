@@ -59,13 +59,13 @@ function  Get-WarrantyDattoRMM {
             switch ($OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
-                        Set-DrmmDeviceWarranty -deviceUid $device.uid -warranty $warstate.EndDate
+                        Set-DrmmDeviceWarranty -deviceUid $device.uid -warranty ($warstate.EndDate).ToString('yyyy-MM-dd') -Verbose
                     }
                      
                 }
                 $false { 
                     if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
-                        Set-DrmmDeviceWarranty -deviceuid $device.uid -warranty $warstate.EndDate
+                        Set-DrmmDeviceWarranty -deviceuid $device.uid -warranty ($warstate.EndDate).ToString('yyyy-MM-dd') -Verbose
                     } 
                 }
             }
