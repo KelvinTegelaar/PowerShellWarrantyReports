@@ -31,7 +31,7 @@ function get-DellWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) 
     $WarrantyState = if ($warlatest -le $today) { "Expired" } else { "OK" }
     if ($warlatest) {
         $StartDate = [DateTime]((($warreq.entitlements.startdate | sort-object -Descending | select-object -last 1)))
-        $EndDate = [DateTime]((($warreq.entitlements.enddate | sort-object -Descending | select-object -last 1)))
+        $EndDate = [DateTime]((($warreq.entitlements.enddate | sort-object -Descending | select-object -first 1)))
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
             'Warranty Product name' = $warreq.entitlements.serviceleveldescription -join "`n"
