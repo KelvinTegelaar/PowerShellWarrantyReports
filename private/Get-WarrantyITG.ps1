@@ -38,28 +38,30 @@ function  Get-WarrantyITG {
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.attributes.'serial-number'). Device $i of $($AllITGlueConfigs.Count)" -percentComplete ($i / $AllITGlueConfigs.Count * 100)
         $RemainingList = set-content 'Devices.json' -force -value ($AllITGlueConfigs | select-object -skip $AllITGlueConfigs.indexof($device) | convertto-json -depth 5)
         $WarState = Get-Warrantyinfo -DeviceSerial $device.attributes.'serial-number' -client $device.attributes.'organization-name'
-        if ($SyncWithSource -eq $true) {
-            $FlexAssetBody = @{
-                "type"       = "configurations"
-                "attributes" = @{
-                    'warranty-expires-at' = $warstate.EndDate
-                } 
-            }
-            switch ($OverwriteWarranty) {
-                $true {
-                    if ($null -ne $warstate.EndDate) {
-                        Set-ITGlueConfigurations -id $device.id -data $FlexAssetBody
-                    }
-                     
-                }
-                $false { 
-                    if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
-                        Set-ITGlueConfigurations -id $device.id -data $FlexAssetBody
+        if ($Warstate.EndDate) {
+            if ($SyncWithSource -eq $true) {
+                $FlexAssetBody = @{
+                    "type"       = "configurations"
+                    "attributes" = @{
+                        'warranty-expires-at' = ($warstate.EndDate).ToString('yyyy-MM-dd')
                     } 
                 }
+                switch ($OverwriteWarranty) {
+                    $true {
+                        if ($null -ne $warstate.EndDate) {
+                            Set-ITGlueConfigurations -id $device.id -data $FlexAssetBody
+                        }
+                     
+                    }
+                    $false { 
+                        if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
+                            Set-ITGlueConfigurations -id $device.id -data $FlexAssetBody
+                        } 
+                    }
+                }
             }
+            $WarState
         }
-        $WarState
     }
     Remove-item 'devices.json' -Force -ErrorAction SilentlyContinue
     return $warrantyObject
