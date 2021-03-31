@@ -3,7 +3,7 @@ function get-LenovoWarranty([Parameter(Mandatory = $true)]$SourceDevice, $client
     $APIURL = "https://warrantyapiproxy.azurewebsites.net/api/Lenovo?Serial=$SourceDevice"
     $Req = Invoke-RestMethod -Uri $APIURL -Method get
     if ($req.Warproduct) {
-        $warlatest = $Req.EndDate | sort-object | select-object -last 1 
+        $warlatest = $Req.EndDate | ForEach-Object { [datetime]$_ } | sort-object | select-object -last 1 
         $WarrantyState = if ($warlatest -le $today) { "Expired" } else { "OK" }
         $WarObj = [PSCustomObject]@{
             'Serial'                = $Req.Serial
