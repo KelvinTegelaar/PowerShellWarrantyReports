@@ -86,7 +86,14 @@ function update-warrantyinfo {
    
     if ($GenerateReports -eq $true) {
         write-host "Done collecting warranty information. Generating reports." -ForegroundColor Green
-        Install-module PSWriteHTML -Force
+
+        If (Get-Module -ListAvailable -Name "PSWriteHTML") { 
+            Import-module PSWriteHTML
+        }
+        Else { 
+            Install-Module PSWriteHTML -Force
+            Import-Module PSWriteHTML
+        }
         $CheckReportFolder = Test-Path($ReportsLocation)
         if (!$CheckReportFolder) { new-item -ItemType Directory -Path $ReportsLocation -Force }
         foreach ($client in $WarrantyStatus.client | Select-Object -Unique) {
