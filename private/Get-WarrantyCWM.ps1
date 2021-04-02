@@ -29,11 +29,12 @@ function  Get-WarrantyCWM {
         Write-Host "Found previous run results. Starting from last object." -ForegroundColor green
         $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
     } else {
-        do {
-            $Devices += Invoke-RestMethod -Headers $header -Method GET -Uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
+        $Devices = do {
+            $DeviceList = Invoke-RestMethod -Headers $header -Method GET -Uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
             $i++
+            $DeviceList
             Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
-        }while ($devices.count % 250 -eq 0 -and $devices.count -ne 0) 
+        }while ($devicelist.count % 250 -eq 0 -and $devicelist.count -ne 0) 
     }
     $warrantyObject = foreach ($device in $Devices) {
         $i++
