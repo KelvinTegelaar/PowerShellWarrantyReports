@@ -18,8 +18,10 @@ function  Get-WarrantyCWM {
         'Content-Type'  = 'application/json'
     }
     If (!($CWMAPIURL -match 'api')) {
-        $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/connectwise"
-        $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
+        $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/$cwcompanyid"
+        If ($companyinfo.IsCloud) {
+            $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
+        }
     }
     $i = 0
     If ($ResumeLast) {
