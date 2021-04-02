@@ -20,12 +20,6 @@ function  Get-WarrantyCWM {
     If (!($CWMAPIURL -match 'api')) {
         $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/connectwise"
         $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
-        $Base64Key = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($CWcompanyid)+$($CWMpiKeyPublic):$($CWMpiKeyPrivate)"))
-        $Header = @{
-            'clientId'      = '3613dda6-fa25-49b9-85fb-7aa2b628befa' #This is the warranty script client id. Do not change. 
-            'Authorization' = "Basic $Base64Key"
-            'Content-Type'  = 'application/json'
-        }
     }
     $i = 0
     If ($ResumeLast) {
