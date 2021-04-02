@@ -18,6 +18,7 @@ function  Get-WarrantyCWM {
         'Content-Type'  = 'application/json'
     }
     If (!($CWMAPIURL -match 'api')) {
+        #https://developer.connectwise.com/Best_Practices/Manage_Cloud_URL_Formatting?mt-learningpath=manage
         $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/$cwcompanyid"
         If ($companyinfo.IsCloud) {
             $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
