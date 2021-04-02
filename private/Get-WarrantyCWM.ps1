@@ -62,7 +62,6 @@ function  Get-WarrantyCWM {
                     if ($null -ne $warstate.EndDate) {
                         Invoke-RestMethod -Headers $header -Method put -Uri "$($CWMAPIURL)/company/configurations/$($device.id)" -Body $CWBody
                     }
-                     
                 }
                 $false { 
                     if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
