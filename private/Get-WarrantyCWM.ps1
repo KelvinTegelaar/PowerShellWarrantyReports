@@ -37,6 +37,7 @@ function  Get-WarrantyCWM {
         }while ($devicelist.count % 250 -eq 0 -and $devicelist.count -ne 0) 
     }
     $warrantyObject = foreach ($device in $Devices) {
+        #Write-Host $device.serialnumber
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -Status "Processing $($device.serialnumber). Device $i of $($devices.Count)" -PercentComplete ($i / $Devices.Count * 100)
         $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $device.company.name
@@ -44,10 +45,17 @@ function  Get-WarrantyCWM {
 
         if ($script:SyncWithSource -eq $true) {
             if (!$device.warrantyExpirationDate) {
-                $device | Add-Member -NotePropertyName "warrantyExpirationDate" -NotePropertyValue "$($WarState.enddate)T00:00:00Z"
+                if ($warstate.EndDate) {
+                    $EndDate = ($warstate.EndDate).ToString('yyyy-MM-ddT00:00:00Z')
+                    $device | Add-Member -NotePropertyName "warrantyExpirationDate" -NotePropertyValue $EndDate
+                }
             } else { 
-                $device.warrantyExpirationDate = "$($WarState.enddate)T00:00:00Z"
+                if ($warstate.EndDate) {
+                    $EndDate = ($warstate.EndDate).ToString('yyyy-MM-ddT00:00:00Z')
+                    $device.warrantyExpirationDate = $EndDate
+                }
             }
+
             $CWBody = $device | ConvertTo-Json
             switch ($script:OverwriteWarranty) {
                 $true {
