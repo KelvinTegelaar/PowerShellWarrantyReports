@@ -9,6 +9,7 @@ function  Get-WarrantyCWM {
         [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
+ 
     Write-Host "Source is Connectwise Manage. Grabbing all devices." -ForegroundColor Green
     $Base64Key = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($CWcompanyid)+$($CWMpiKeyPublic):$($CWMpiKeyPrivate)"))
  
@@ -17,6 +18,7 @@ function  Get-WarrantyCWM {
         'Authorization' = "Basic $Base64Key"
         'Content-Type'  = 'application/json'
     }
+
     If (!($CWMAPIURL -match 'api')) {
         #https://developer.connectwise.com/Best_Practices/Manage_Cloud_URL_Formatting?mt-learningpath=manage
         $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/$cwcompanyid"
@@ -24,11 +26,13 @@ function  Get-WarrantyCWM {
             $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
         }
     }
-    $i = 0
+
+ 
     If ($ResumeLast) {
         Write-Host "Found previous run results. Starting from last object." -ForegroundColor green
         $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
     } else {
+        $i = 0
         $Devices = do {
             $DeviceList = Invoke-RestMethod -Headers $header -Method GET -Uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
             $i++
@@ -36,6 +40,8 @@ function  Get-WarrantyCWM {
             Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
         }while ($devicelist.count % 250 -eq 0 -and $devicelist.count -ne 0) 
     }
+    
+    $i = 0
     $warrantyObject = foreach ($device in $Devices) {
         #Write-Host $device.serialnumber
         $i++
@@ -43,7 +49,8 @@ function  Get-WarrantyCWM {
         $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $device.company.name
         $RemainingList = Set-Content 'Devices.json' -Force -Value ($Devices | Select-Object -Skip $i | ConvertTo-Json -Depth 5)
 
-        if ($script:SyncWithSource -eq $true) {
+        if ($SyncWithSource -eq $true) {
+            
             if (!$device.warrantyExpirationDate) {
                 if ($warstate.EndDate) {
                     $EndDate = ($warstate.EndDate).ToString('yyyy-MM-ddT00:00:00Z')
@@ -57,7 +64,7 @@ function  Get-WarrantyCWM {
             }
 
             $CWBody = $device | ConvertTo-Json
-            switch ($script:OverwriteWarranty) {
+            switch ($OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
                         Invoke-RestMethod -Headers $header -Method put -Uri "$($CWMAPIURL)/company/configurations/$($device.id)" -Body $CWBody
