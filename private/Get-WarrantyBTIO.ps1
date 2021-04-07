@@ -29,43 +29,53 @@ function  Get-WarrantyBTIO {
 	}
 	
 
-	
-	write-host $Devices
-		
+			
     $warrantyObject = foreach ($device in $Devices) {
 		$device_name = $device.name
 		Write-Host "Processing $device_name"
         $WarState = Get-Warrantyinfo -DeviceSerial $device.hw_serial_number -client $device.company_name
         
 		if ($SyncWithSource -eq $true) {
-		
-			write-host "Updating BluetraitIO" -foregroundColor green
-       			
-			$JSON = @{
-				"api_key" = $BTAPIKEY
-				"api_action" = "msp_edit_agent"
-				"api_version" = 1
-				"id" = $($device.id)
-				"columns" = @{
-					"warranty_expires" = $WarState.EndDate
-				}
-			} | ConvertTo-Json
-		
-			$JSON
 			
-            switch ($OverwriteWarranty) {	
-                $true {
-                    if ($null -ne $warstate.EndDate) {
-						Invoke-RestMethod -Uri "$($BTAPIURL)" -Method Post -Body $JSON -ContentType "application/json"	
-                    }
-                     
-                }
-                $false { 
-                    if ($null -eq $device.warranty_expires -and $null -ne $warstate.EndDate) { 
-						Invoke-RestMethod -Uri "$($BTAPIURL)" -Method Post -Body $JSON -ContentType "application/json"	
-                    } 
-                }
-            }
+			$theDate = $WarState.EndDate 
+			$testDate = $theDate -as [DateTime];
+			
+			if ($testDate) {
+				$useDate = $theDate.ToString("yyyy-MM-dd");
+				
+				write-host "Valid date format $useDate" -foregroundColor green
+				
+				$JSON = @{
+					"api_key" = $BTAPIKEY
+					"api_action" = "msp_edit_agent"
+					"api_version" = 1
+					"id" = $($device.id)
+					"columns" = @{
+						"warranty_expires" = $useDate
+					}
+				} | ConvertTo-Json
+			
+				$JSON
+				
+				switch ($OverwriteWarranty) {	
+					$true {
+						if ($null -ne $warstate.EndDate) {
+							write-host "Updating BluetraitIO" -foregroundColor green
+							Invoke-RestMethod -Uri "$($BTAPIURL)" -Method Post -Body $JSON -ContentType "application/json"	
+						}
+						 
+					}
+					$false { 
+						if ($null -eq $device.warranty_expires -and $null -ne $warstate.EndDate) { 
+							write-host "Updating BluetraitIO" -foregroundColor green
+							Invoke-RestMethod -Uri "$($BTAPIURL)" -Method Post -Body $JSON -ContentType "application/json"	
+						} 
+					}
+				}
+			}
+			else {
+				write-host "Invalidate date format $theDate" -foregroundColor red
+			}
         }
         $WarState
     }
