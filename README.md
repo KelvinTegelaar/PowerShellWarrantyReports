@@ -30,6 +30,7 @@ An unchecked box means development for this is underway
 - [ ] SyncroRMM
 - [x] DattoRMM
 - [ ] Connectwise Automate
+- [x] BluetraitIO
 
 # Supported Manufacturers
 - [x] Dell (Requires API key)
@@ -61,6 +62,10 @@ This will generate the reports in C:\Temp. To set the path yourself use
 To update Hudu, first edit the asset layout of the devices you wish to update to add a new field. If you wish to use expirations and not have apple devices, choose a date field and enable add to expirations. If you wish to have apple devices you will need to make this a string field and not use expirations. Make a note of the name of the field and the name of the asset layout then call the script:
 
         update-warrantyinfo -Hudu -HuduAPIKey "YourAPIKey" -HuduBaseURL "YourHuduDomain" -HuduDeviceAssetLayout "Desktops / Laptops" -HuduWarrantyField "Warranty Expiry" -SyncWithSource -OverwriteWarranty -ExcludeApple 
+
+To execute an update of all devices in BluetraitIO use:
+
+    update-warrantyinfo -BluetraitIO -BTAPIKEY "your_api_key" -BTAPIURL "https://example.bluetrait.io/api/" -SyncWithSource -OverwriteWarranty
 
 # Contributions
 
