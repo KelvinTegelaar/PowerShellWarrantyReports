@@ -41,6 +41,12 @@ function update-warrantyinfo {
         [String]$DattoAPISecret,
         [Parameter(ParameterSetName = 'Datto', Mandatory = $true)]
         [String]$DattoAPIURL,
+        [Parameter(ParameterSetName = 'BluetraitIO', Mandatory = $true)]
+		[switch]$BluetraitIO,
+        [Parameter(ParameterSetName = 'BluetraitIO', Mandatory = $true)]
+        [string]$BTAPIKEY,
+        [Parameter(ParameterSetName = 'BluetraitIO', Mandatory = $true)]
+        [String]$BTAPIURL,
         [Parameter(ParameterSetName = 'Hudu', Mandatory = $true)]
         [switch]$Hudu,
         [Parameter(ParameterSetName = 'Hudu', Mandatory = $true)]
@@ -81,6 +87,7 @@ function update-warrantyinfo {
         Nable { $WarrantyStatus = Get-WarrantyNable -NableURL $NableURL -JWTKey $NableJWT | Sort-Object -Property Client }
         DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Hudu { $WarrantyStatus = Get-WarrantyHudu -HuduAPIKey $HuduAPIKey -HuduBaseURL $HuduBaseURL -HuduDeviceAssetLayout $HuduDeviceAssetLayout -HuduWarrantyField $HuduWarrantyField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
+        BluetraitIO { $WarrantyStatus = Get-WarrantyBTIO -BTAPIKEY $BTAPIKEY -BTAPIURL $BTAPIURL -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
 
     }
    

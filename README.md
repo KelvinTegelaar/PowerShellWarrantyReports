@@ -30,6 +30,7 @@ An unchecked box means development for this is underway
 - [ ] SyncroRMM
 - [x] DattoRMM
 - [ ] Connectwise Automate
+- [x] BluetraitIO
 
 # Supported Manufacturers
 - [x] Dell (Requires API key)
