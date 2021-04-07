@@ -63,6 +63,10 @@ To update Hudu, first edit the asset layout of the devices you wish to update to
 
         update-warrantyinfo -Hudu -HuduAPIKey "YourAPIKey" -HuduBaseURL "YourHuduDomain" -HuduDeviceAssetLayout "Desktops / Laptops" -HuduWarrantyField "Warranty Expiry" -SyncWithSource -OverwriteWarranty -ExcludeApple 
 
+To execute an update of all devices in BluetraitIO use:
+
+    update-warrantyinfo -BluetraitIO -BTAPIKEY "your_api_key" -BTAPIURL "https://example.bluetrait.io/api/" -SyncWithSource -OverwriteWarranty
+
 # Contributions
 
 Feel free to send pull requests or fill out issues when you encounter them. I'm also completely open to adding direct maintainers/contributors and working together! :) I'd love if we could make this into a huge help for our entire community.
