@@ -49,6 +49,7 @@ function  Get-WarrantyITG {
                 switch ($OverwriteWarranty) {
                     $true {
                         if ($null -ne $warstate.EndDate) {
+                            Write-Verbose "overwriting warranty for device $($device.id)"
                             Set-ITGlueConfigurations -id $device.id -data $FlexAssetBody
                         }
                      
