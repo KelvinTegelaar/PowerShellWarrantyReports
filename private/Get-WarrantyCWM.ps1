@@ -9,7 +9,8 @@ function  Get-WarrantyCWM {
         [boolean]$Missingonly,
         [boolean]$OverwriteWarranty
     )
-    write-host "Source is Connectwise Manage. Grabbing all devices." -ForegroundColor Green
+ 
+    Write-Host "Source is Connectwise Manage. Grabbing all devices." -ForegroundColor Green
     $Base64Key = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($CWcompanyid)+$($CWMpiKeyPublic):$($CWMpiKeyPrivate)"))
  
     $Header = @{
@@ -17,49 +18,67 @@ function  Get-WarrantyCWM {
         'Authorization' = "Basic $Base64Key"
         'Content-Type'  = 'application/json'
     }
-    $i = 0
-    If ($ResumeLast) {
-        write-host "Found previous run results. Starting from last object." -foregroundColor green
-        $Devices = get-content 'Devices.json' | convertfrom-json
+
+    If (!($CWMAPIURL -match 'api')) {
+        #https://developer.connectwise.com/Best_Practices/Manage_Cloud_URL_Formatting?mt-learningpath=manage
+        $companyinfo = Invoke-RestMethod -Headers $header -Method GET -Uri "$CWMAPIURL/login/companyinfo/$cwcompanyid"
+        If ($companyinfo.IsCloud) {
+            $CWMAPIURL = "https://$($companyinfo.siteurl)/$($companyinfo.Codebase)apis/3.0"
+        }
     }
-    else {
+
+ 
+    If ($ResumeLast) {
+        Write-Host "Found previous run results. Starting from last object." -ForegroundColor green
+        $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
+    } else {
+        $i = 0
         $Devices = do {
-            $DeviceList = invoke-restmethod -headers $header -method GET -uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
+            $DeviceList = Invoke-RestMethod -Headers $header -Method GET -Uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
             $i++
             $DeviceList
             Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
-        }while ($devices.count % 250 -eq 0 -and $devices.count -ne 0) 
+        }while ($devicelist.count % 250 -eq 0 -and $devicelist.count -ne 0) 
     }
+    
+    $i = 0
     $warrantyObject = foreach ($device in $Devices) {
+        #Write-Host $device.serialnumber
         $i++
-        Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serialnumber). Device $i of $($devices.Count)" -percentComplete ($i / $Devices.Count * 100)
+        Write-Progress -Activity "Grabbing Warranty information" -Status "Processing $($device.serialnumber). Device $i of $($devices.Count)" -PercentComplete ($i / $Devices.Count * 100)
         $WarState = Get-Warrantyinfo -DeviceSerial $device.serialnumber -client $device.company.name
-        $RemainingList = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
+        $RemainingList = Set-Content 'Devices.json' -Force -Value ($Devices | Select-Object -Skip $i | ConvertTo-Json -Depth 5)
 
-        if ($script:SyncWithSource -eq $true) {
+        if ($SyncWithSource -eq $true) {
+            
             if (!$device.warrantyExpirationDate) {
-                $device | Add-Member -NotePropertyName "warrantyExpirationDate" -NotePropertyValue "$($WarState.enddate)T00:00:00Z"
+                if ($warstate.EndDate) {
+                    $EndDate = ($warstate.EndDate).ToString('yyyy-MM-ddT00:00:00Z')
+                    $device | Add-Member -NotePropertyName "warrantyExpirationDate" -NotePropertyValue $EndDate
+                }
+            } else { 
+                if ($warstate.EndDate) {
+                    $EndDate = ($warstate.EndDate).ToString('yyyy-MM-ddT00:00:00Z')
+                    $device.warrantyExpirationDate = $EndDate
+                }
             }
-            else { 
-                $device.warrantyExpirationDate = "$($WarState.enddate)T00:00:00Z"
-            }
+
             $CWBody = $device | ConvertTo-Json
-            switch ($script:OverwriteWarranty) {
+            switch ($OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
-                        invoke-restmethod -headers $header -method put -uri "$($CWMAPIURL)/company/configurations/$($device.id)" -body $CWBody
+                        Invoke-RestMethod -Headers $header -Method put -Uri "$($CWMAPIURL)/company/configurations/$($device.id)" -Body $CWBody
                     }
-                     
                 }
                 $false { 
                     if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
-                        invoke-restmethod -headers $header -method put -uri "$($CWMAPIURL)/company/configurations/$($device.id)" -body $CWBody
+                        Invoke-RestMethod -Headers $header -Method put -Uri "$($CWMAPIURL)/company/configurations/$($device.id)" -Body $CWBody
                     } 
                 }
             }
         }
         $WarState
     }
-    Remove-item 'devices.json' -Force -ErrorAction SilentlyContinue
+    Remove-Item 'devices.json' -Force -ErrorAction SilentlyContinue
     return $warrantyObject
 }
