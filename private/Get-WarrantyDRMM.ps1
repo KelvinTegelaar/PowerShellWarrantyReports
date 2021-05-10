@@ -9,7 +9,7 @@ function  Get-WarrantyDattoRMM {
         [boolean]$OverwriteWarranty
     )
     write-host "Source is Datto RMM. Grabbing all devices." -ForegroundColor Green
-    If (Get-Module -ListAvailable -Name "DattoRMM") { 
+    If (Get-Module -ListAvailable -Name "DattoRMM" | where-object {$_.version -ge "1.0.0.25"}) { 
         Import-module DattoRMM
     }
     Else { 
@@ -33,8 +33,10 @@ function  Get-WarrantyDattoRMM {
         $AllDevices = get-content 'Devices.json' | convertfrom-json
     }
     else {
-        $AllDevices = Get-DrmmAccountDevices | select-object DeviceClass, uid, SiteName
-        
+        $AllDevices = Get-DrmmAccountDevices | select-object DeviceClass, uid, SiteName, warrantyDate
+    }
+    if ($Missingonly -eq $true){
+        $Alldevices = $AllDevices | Where-Object {[string]::IsNullOrWhiteSpace($_.warrantyDate)}
     }
     $i = 0
     $warrantyObject = foreach ($device in $AllDevices) {
@@ -64,7 +66,7 @@ function  Get-WarrantyDattoRMM {
                      
                 }
                 $false { 
-                    if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
+                    if ([string]::IsNullOrWhiteSpace($device.warrantyDate) -and $null -ne $warstate.EndDate) { 
                         Set-DrmmDeviceWarranty -deviceuid $device.uid -warranty ($warstate.EndDate).ToString('yyyy-MM-dd')
                     } 
                 }
