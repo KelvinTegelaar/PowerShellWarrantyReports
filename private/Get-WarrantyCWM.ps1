@@ -27,7 +27,7 @@ function  Get-WarrantyCWM {
         }
     }
 
- 
+    $ResumeLast = Test-Path 'Devices.json'
     If ($ResumeLast) {
         Write-Host "Found previous run results. Starting from last object." -ForegroundColor green
         $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
