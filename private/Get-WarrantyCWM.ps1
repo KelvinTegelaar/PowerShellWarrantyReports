@@ -62,8 +62,13 @@ function  Get-WarrantyCWM {
                     $device.warrantyExpirationDate = $EndDate
                 }
             }
+            # Clear _info metadata that the CWM API doesn't like to receive in PUT commands.
+            $device.type._info = "" 
+            $device.status._info = "" 
+            $device.company._info = ""
 
             $CWBody = $device | ConvertTo-Json
+
             switch ($OverwriteWarranty) {
                 $true {
                     if ($null -ne $warstate.EndDate) {
