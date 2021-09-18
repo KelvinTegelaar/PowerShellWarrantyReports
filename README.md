@@ -18,6 +18,7 @@ An unchecked box means development for this is underway
 ## PSA    
 - [x] Autotask
 - [x] Connectwise Manage
+- [X] Halo PSA / ITSM / Service Desk
 
 ## Documentation Tools
 - [x] IT-Glue
@@ -43,6 +44,7 @@ An unchecked box means development for this is underway
 Due to a change in how Apple generates serial numbers it is no longer possible to accurately determine the warranty expiry for newer devices. As such any new Apple devices could return a completely inaccurate expiry date. To account for this you can add the -ExcludeApple switch to the the Update-Warrantyinfo.ps1 script to skip updating any apple devices and ensure you do not update with inaccurate data.
 
 # Usage
+## Autotask
 To execute an update of all devices in Autotask use:
 
     $Creds = get-credential  
@@ -59,10 +61,17 @@ This will generate the reports in C:\Temp. To set the path yourself use
 
        update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ReportsLocation "C:\OtherFolder"
 
+## Hudu
 To update Hudu, first edit the asset layout of the devices you wish to update to add a new field. If you wish to use expirations and not have apple devices, choose a date field and enable add to expirations. If you wish to have apple devices you will need to make this a string field and not use expirations. Make a note of the name of the field and the name of the asset layout then call the script:
 
         update-warrantyinfo -Hudu -HuduAPIKey "YourAPIKey" -HuduBaseURL "YourHuduDomain" -HuduDeviceAssetLayout "Desktops / Laptops" -HuduWarrantyField "Warranty Expiry" -SyncWithSource -OverwriteWarranty -ExcludeApple 
 
+## Halo PSA / ITSM / Service Desk
+To update Halo you will first need to determine which field name you are using to store you serial numbers. This could be a base field such as "inventory_number", an asset field such as "Serial Number" or a custom field such as "CFSerialNumber". You can find the name by using the Halo Powershell Module and using Get-HaloAsset -FullObjects and inpecting the returned objects:
+
+        update-warrantyinfo -Halo -HaloClientID "YourAPIAppClientID" -HaloClientSecret "YourHaloAPIAppSecret" -HaloURL "YourHaloURL" -HaloSerialField "Halo Serial Field Name" -SyncWithSource -OverwriteWarranty -ExcludeApple
+
+## BluetraitIO
 To execute an update of all devices in BluetraitIO use:
 
     update-warrantyinfo -BluetraitIO -BTAPIKEY "your_api_key" -BTAPIURL "https://example.bluetrait.io/api/" -SyncWithSource -OverwriteWarranty

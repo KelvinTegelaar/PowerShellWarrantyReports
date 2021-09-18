@@ -57,6 +57,16 @@ function update-warrantyinfo {
         [String]$HuduDeviceAssetLayout,
         [Parameter(ParameterSetName = 'Hudu', Mandatory = $true)]
         [String]$HuduWarrantyField,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
+        [switch]$Halo,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
+        [String]$HaloURL,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
+        [String]$HaloClientID,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
+        [String]$HaloClientSecret,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
+        [String]$HaloSerialField,
         [Parameter(Mandatory = $false)]
         [Switch]$SyncWithSource,
         [Parameter(Mandatory = $false)]
@@ -86,9 +96,9 @@ function update-warrantyinfo {
         CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Nable { $WarrantyStatus = Get-WarrantyNable -NableURL $NableURL -JWTKey $NableJWT | Sort-Object -Property Client }
         DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
-        Hudu { $WarrantyStatus = Get-WarrantyHudu -HuduAPIKey $HuduAPIKey -HuduBaseURL $HuduBaseURL -HuduDeviceAssetLayout $HuduDeviceAssetLayout -HuduWarrantyField $HuduWarrantyField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
+        Hudu { $WarrantyStatus = Get-WarrantyHudu -HuduAPIKey $HuduAPIKey -HuduBaseURL $HuduBaseURL -HuduDeviceAssetLayout $HuduDeviceAssetLayout -HuduWarrantyField $HuduWarrantyField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        Halo { $WarrantyStatus = Get-WarrantyHalo -HaloURL $HaloURL -HaloClientID $HaloClientID -HaloClientSecret $HaloClientSecret -HaloSerialField $HaloSerialField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
         BluetraitIO { $WarrantyStatus = Get-WarrantyBTIO -BTAPIKEY $BTAPIKEY -BTAPIURL $BTAPIURL -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
-
     }
    
     if ($GenerateReports -eq $true) {
