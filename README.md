@@ -38,6 +38,7 @@ An unchecked box means development for this is underway
 - [x] Microsoft
 - [x] HP (Spotty API. New one coming soon.)
 - [x] Lenovo
+- [x] Toshiba
 - [x] Apple (Estimated dates)
 
 # Apple Note
