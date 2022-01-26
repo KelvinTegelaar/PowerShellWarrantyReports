@@ -14,8 +14,6 @@ function update-warrantyinfo {
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [switch]$CWManage,
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
-        [array]$CWManageConfigTypes,
-        [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [string]$CWManagePublicKey,
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [String]$CWManagePrivateKey,
@@ -23,6 +21,8 @@ function update-warrantyinfo {
         [String]$CWManageAPIURL,
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [String]$CWManageCompanyID,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $false)]
+        [array]$CWManageConfigTypes,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
         [switch]$ITGlue,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
