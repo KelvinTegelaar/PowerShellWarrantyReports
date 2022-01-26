@@ -44,9 +44,6 @@ An unchecked box means development for this is underway
 # Apple Note
 Due to a change in how Apple generates serial numbers it is no longer possible to accurately determine the warranty expiry for newer devices. As such any new Apple devices could return a completely inaccurate expiry date. To account for this you can add the -ExcludeApple switch to the the Update-Warrantyinfo.ps1 script to skip updating any apple devices and ensure you do not update with inaccurate data.
 
-# HP Note
-HP has taken down their warranty API for retooling until further notice. The re-release of which has been postponed and no ETA is currently available. As a result, HP device requests will timeout and return an error. While there are no adverse data affects as a result, a high number of HP devices in the source can lead to long execution times. To account for this you can add the -ExcludeHP switch to the the Update-Warrantyinfo.ps1 script to skip updating any HP devices.
-
 # Usage
 ## Autotask
 To execute an update of all devices in Autotask use:
