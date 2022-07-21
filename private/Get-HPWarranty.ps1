@@ -1,25 +1,21 @@
 function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
-    $MWSID = (invoke-restmethod -uri 'https://support.hp.com/us-en/checkwarranty/multipleproducts/' -SessionVariable 'session' -Method get) -match '.*mwsid":"(?<wssid>.*)".*'
-    $HPBody = " { `"gRecaptchaResponse`":`"`", `"obligationServiceRequests`":[ { `"serialNumber`":`"$SourceDevice`", `"isoCountryCde`":`"US`", `"lc`":`"EN`", `"cc`":`"US`", `"modelNumber`":null }] }"
- 
-    try{ 
-        $HPReq = Invoke-RestMethod -Uri "https://support.hp.com/hp-pps-services/os/multiWarranty?ssid=$($matches.wssid)" -WebSession $session -Method "POST" -ContentType "application/json" -Body $HPbody 
+    try { 
+        $HPReq = Invoke-RestMethod -Uri "https://warrantyapiproxy.azurewebsites.net/api/HP?serial=5CG2076LK8"
     }
-    catch{
+    catch {
         $HPReq = $null
-        if ($script:HPNotified -eq $false){
-        write-host "HP Requests currently failing: No HP data will be returned. The HP API is currently spotty. A new API will be coming `"soon`"" -ForegroundColor Red
-        $script:HPNotified = $true
-        }
     }
 
-    if ($HPreq.productWarrantyDetailsVO.warrantyResultList.obligationStartDate) {
+
+    if ($HPreq) {
+        $today = Get-Date
+        $WarrantyState = if ([DateTime]$HPReq.endDate -le $today) { "Expired" } else { "OK" }
         $WarObj = [PSCustomObject]@{
             'Serial'                = $SourceDevice
-            'Warranty Product name' = $hpreq.productWarrantyDetailsVO.warrantyResultList.warrantyType | Out-String
-            'StartDate'             = [DateTime]::Parse($($hpreq.productWarrantyDetailsVO.warrantyResultList.obligationStartDate | sort-object | select-object -last 1))
-            'EndDate'               = [DateTime]::Parse($($hpreq.productWarrantyDetailsVO.warrantyResultList.obligationEndDate | sort-object | select-object -last 1))
-            'Warranty Status'       = $hpreq.productWarrantyDetailsVO.obligationStatus
+            'Warranty Product name' = $hpreq.warProduct
+            'StartDate'             = [DateTime]$HPReq.StartDate
+            'EndDate'               = [DateTime]$HPReq.endDate
+            'Warranty Status'       = $WarrantyState
             'Client'                = $Client
         }
     }
