@@ -94,4 +94,4 @@ Feel free to send pull requests or fill out issues when you encounter them. I'm 
 
 # Future plans
 
-Version 0.8 includes all things I required for myself, if you need a feature, shoot me a feature request :)
+Version 1.7 includes a new HP API that is created from a reverse engineered API by HP.
