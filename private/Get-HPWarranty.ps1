@@ -7,7 +7,7 @@ function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
     }
 
 
-    if ($HPreq) {
+    if ($HPreq.StartDate) {
         $today = Get-Date
         $WarrantyState = if ([DateTime]$HPReq.endDate -le $today) { "Expired" } else { "OK" }
         $WarObj = [PSCustomObject]@{
