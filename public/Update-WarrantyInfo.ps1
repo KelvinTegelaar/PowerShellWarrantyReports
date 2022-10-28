@@ -67,6 +67,19 @@ function update-warrantyinfo {
         [String]$HaloClientSecret,
         [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
         [String]$HaloSerialField,
+
+        
+        [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
+        [switch]$Ninja,
+        [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
+        [String]$NinjaClientID,
+        [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
+        [String]$NinjaSecret,
+        [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
+        [String]$NinjaURL,
+        [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
+        [String]$NinjaFieldName,
+
         [Parameter(Mandatory = $false)]
         [Switch]$SyncWithSource,
         [Parameter(Mandatory = $false)]
@@ -98,6 +111,7 @@ function update-warrantyinfo {
         DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Hudu { $WarrantyStatus = Get-WarrantyHudu -HuduAPIKey $HuduAPIKey -HuduBaseURL $HuduBaseURL -HuduDeviceAssetLayout $HuduDeviceAssetLayout -HuduWarrantyField $HuduWarrantyField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Halo { $WarrantyStatus = Get-WarrantyHalo -HaloURL $HaloURL -HaloClientID $HaloClientID -HaloClientSecret $HaloClientSecret -HaloSerialField $HaloSerialField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
+        Ninja { $WarrantyStatus = Get-WarrantyNinja -NinjaURL $NinjaURL -Secretkey $NinjaSecret -AccessKey $NinjaClientID -NinjaFieldName $NinjaFieldName -SyncWithSource $SyncWithSource -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         BluetraitIO { $WarrantyStatus = Get-WarrantyBTIO -BTAPIKEY $BTAPIKEY -BTAPIURL $BTAPIURL -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client } 
     }
    

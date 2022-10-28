@@ -3,46 +3,74 @@ function  Get-WarrantyNinja {
     Param(
         [string]$NinjaURL,
         [String]$Secretkey,
-        [boolean]$AccessKey,
-        [boolean]$Missingonly,
-        [boolean]$OverwriteWarranty
+        [String]$AccessKey,
+        [boolean]$SyncWithSource,
+        [boolean]$OverwriteWarranty,
+        [string]$NinjaFieldName
     )
-    $Date = (Get-Date -Format r)
-    $Command = "GET`n`n`n$($date)`n/v1/devices"
-    $EncodedCommand = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Command))
+    $AuthBody = @{
+        'grant_type'    = 'client_credentials'
+        'client_id'     = $AccessKey
+        'client_secret' = $Secretkey
+        'scope'         = 'management monitoring' 
+    }
+    
+    $Result = Invoke-WebRequest -uri "$($NinjaURL)/ws/oauth/token" -Method POST -Body $AuthBody -ContentType 'application/x-www-form-urlencoded'
+    
+    $AuthHeader = @{
+        'Authorization' = "Bearer $(($Result.content | convertfrom-json).access_token)"
+    }
 
-    $HMACSHA = New-Object System.Security.Cryptography.HMACSHA1
-    $HMACSHA.Key = [Text.Encoding]::ASCII.GetBytes($SecretAccessKey)
-    $Signature = $HMACSHA.ComputeHash([Text.Encoding]::UTF8.GetBytes($EncodedCommand))
-    $Signature = [Convert]::ToBase64String($Signature)
+    $OrgsRaw = Invoke-WebRequest -uri "$($NinjaURL)/v2/organizations" -Method GET -Headers $AuthHeader
+    $NinjaOrgs = $OrgsRaw | ConvertFrom-Json
+    
+    $date1 = Get-Date -Date "01/01/1970"  
 
-    #Generate the Authorization string
-    $Authorization = "NJ $AccessKeyID`:$Signature"
-    # Bind to the namespace, using the Webserviceproxy
-    $Header = @{"Authorization" = $Authorization; "Date" = $Date }
     If ($ResumeLast) {
         write-host "Found previous run results. Starting from last object." -foregroundColor green
         $Devices = get-content 'Devices.json' | convertfrom-json
-    }
-    else {
-        $Devices = Invoke-RestMethod -Method GET -Uri "https://api.ninjarmm.com/v1/devices" -Headers $Header
+    } else {
+        $DevicesRaw = Invoke-WebRequest -uri "$($NinjaURL)/v2/devices-detailed" -Method GET -Headers $AuthHeader
+        $Devices = $DevicesRaw.content | ConvertFrom-Json
     }
     $i = 0
     $warrantyObject = foreach ($device in $Devices) {
         $i++
-        Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.serial). Device $i of $($Devices.Count)" -percentComplete ($i / $Devices.Count * 100)
-        $WarState = Get-Warrantyinfo -DeviceSerial $device.serial -client $device.client
-        $RemainingList = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
+        Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.system.biosSerialNumber). Device $i of $($Devices.Count)" -percentComplete ($i / $Devices.Count * 100)
+        $DeviceOrg = ($NinjaOrgs | Where-Object { $_.id -eq $Device.organizationId }).name
+        $WarState = Get-Warrantyinfo -DeviceSerial $device.system.biosSerialNumber -client $DeviceOrg
+        $Null = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
 
-        if ($SyncWithSource -eq $true) {
-            switch ($OverwriteWarranty) {
-                $true {
-                    write-host "NinjaRMM does not support Warranty write-back."               
-                }
-                $false { 
-                    if ($null -eq $device.WarrantyExpirationDate -and $null -ne $warstate.EndDate) { 
-                        write-host "NinjaRMM does not support Warranty write-back."      
-                    } 
+        if ($warstate.EndDate) {
+            $Milliseconds = (New-TimeSpan -Start $date1 -End $warstate.EndDate).TotalMilliseconds
+            $UpdateBody = @{
+                "$NinjaFieldName" = $Milliseconds
+            } | convertto-json
+            
+            if ($SyncWithSource -eq $true) {
+                switch ($OverwriteWarranty) {
+                    $true {
+                        
+                        try {
+                            $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
+                        }
+                        catch {
+                            Write-Error "Failed to update device: $($Device.systemName) $_"
+                        }
+                    }
+                    $false {
+                        $DeviceFields = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method GET -Headers $AuthHeader
+                        $WarrantyDate = ($DeviceFields.content | convertfrom-json)."$($NinjaFieldName)"
+
+                        if ($null -eq $WarrantyDate -and $null -ne $warstate.EndDate) { 
+                            try {
+                                $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
+                            }
+                            catch {
+                                Write-Error "Failed to update device: $($Device.systemName) $_"
+                            }        
+                        } 
+                    }
                 }
             }
         }

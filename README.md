@@ -30,6 +30,7 @@ An unchecked box means development for this is underway
 ## RMM
 
 - [x] Solarwinds N-Able (Reporting only)
+- [x] NinjaOne
 - [x] DattoRMM
 - [x] BluetraitIO
 
@@ -69,6 +70,11 @@ To only generate HTML reports use
 This will generate the reports in C:\Temp. To set the path yourself use
 
        update-warrantyinfo -Autotask -AutotaskCredentials $creds -AutotaskAPIKey 'APIINTEGRATIONKEY' -GenerateReports -ReportsLocation "C:\OtherFolder"
+
+## NinjaOne
+To update NinjaOne first you will need to create a Global Custom Field to hold your expiry date. Call this something like "Warranty Expiry", use a Date type and make a note of the field name once saved. In my case it is warrantyExpiry. Next you need to generate Ninja API Credentials. Create a new "API Services" key with "Management" and "Monitoring" Access and Client Credentials as an allowed grant type. If needed enter "Localhost" in the redirect URL. For the NinjaURL enter the Ninja URL for your instance. For example https://app.ninjarmm.com, https://eu.ninjarmm.com, etc.
+
+         update-warrantyinfo -Ninja -NinjaClientID "YourAPIClientID" -NinjaSecret "YourAPISecret" -NinjaURL "https://eu.ninjarmm.com" -NinjaFieldName "warrantyExpiry" -SyncWithSource -OverwriteWarranty -ExcludeApple
 
 ## Hudu
 
