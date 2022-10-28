@@ -3,7 +3,7 @@ function  Get-WarrantyNinja {
     Param(
         [string]$NinjaURL,
         [String]$Secretkey,
-        [boolean]$AccessKey,
+        [String]$AccessKey,
         [boolean]$SyncWithSource,
         [boolean]$OverwriteWarranty,
         [string]$NinjaFieldName
