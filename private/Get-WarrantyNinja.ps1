@@ -15,7 +15,7 @@ function  Get-WarrantyNinja {
         'scope'         = 'management monitoring' 
     }
     
-    $Result = Invoke-WebRequest -uri "$($NinjaURL)/ws/oauth/token" -Method POST -Body $AuthBody -ContentType 'application/x-www-form-urlencoded'
+    $Result = Invoke-WebRequest -UseBasicParsing -uri "$($NinjaURL)/ws/oauth/token" -Method POST -Body $AuthBody -ContentType 'application/x-www-form-urlencoded'
     
     $AuthHeader = @{
         'Authorization' = "Bearer $(($Result.content | convertfrom-json).access_token)"
@@ -30,7 +30,7 @@ function  Get-WarrantyNinja {
         write-host "Found previous run results. Starting from last object." -foregroundColor green
         $Devices = get-content 'Devices.json' | convertfrom-json
     } else {
-        $DevicesRaw = Invoke-WebRequest -uri "$($NinjaURL)/v2/devices-detailed" -Method GET -Headers $AuthHeader
+        $DevicesRaw = Invoke-WebRequest -UseBasicParsing -uri "$($NinjaURL)/v2/devices-detailed" -Method GET -Headers $AuthHeader
         $Devices = $DevicesRaw.content | ConvertFrom-Json
     }
     $i = 0
@@ -52,19 +52,19 @@ function  Get-WarrantyNinja {
                     $true {
                         
                         try {
-                            $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
+                            $Result = Invoke-WebRequest -UseBasicParsing -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
                         }
                         catch {
                             Write-Error "Failed to update device: $($Device.systemName) $_"
                         }
                     }
                     $false {
-                        $DeviceFields = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method GET -Headers $AuthHeader
+                        $DeviceFields = Invoke-WebRequest -UseBasicParsing -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method GET -Headers $AuthHeader
                         $WarrantyDate = ($DeviceFields.content | convertfrom-json)."$($NinjaFieldName)"
 
                         if ($null -eq $WarrantyDate -and $null -ne $warstate.EndDate) { 
                             try {
-                                $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
+                                $Result = Invoke-WebRequest -UseBasicParsing -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
                             }
                             catch {
                                 Write-Error "Failed to update device: $($Device.systemName) $_"
