@@ -4,6 +4,13 @@ See https://www.cyberdrain.com/automating-with-powershell-automating-warranty-in
 
 This is a PowerShell module that helps you get warranty information for items in your CMDB, PSA, or RMM. This module was made due to some shady businesses going on in the world of Warranty reporting and lookups, and to democtratize the warranty lookups. :)
 
+# Note
+At present lookups for HP, Lenovo and Microsoft are not working.
+You can bybass these lookups by adding the following switches
+    -ExcludeMS
+    -ExcludeHP
+    -ExcludeLenovo
+
 # Installation instructions
 
 This module has been published to the PowerShell Gallery. Use the following command to install:
