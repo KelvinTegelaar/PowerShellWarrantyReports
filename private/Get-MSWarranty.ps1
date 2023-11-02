@@ -1,4 +1,5 @@
 function Get-MSWarranty([Parameter(Mandatory = $true)][string]$SourceDevice, $client) {
+    if ($ExcludeMS -ne $True){
     $body = ConvertTo-Json @{
         sku          = "Surface_"
         SerialNumber = "$SourceDevice"
@@ -48,5 +49,15 @@ function Get-MSWarranty([Parameter(Mandatory = $true)][string]$SourceDevice, $cl
             'Client'                = $Client
         }
     }
+} else {
+    $WarObj = [PSCustomObject]@{
+        'Serial'                = $SourceDevice
+        'Warranty Product name' = 'MS Lookups Excluded'
+        'StartDate'             = $null
+        'EndDate'               = $null
+        'Warranty Status'       = 'MS Lookups Excluded'
+        'Client'                = $Client
+    } 
+}
     return $WarObj
 }

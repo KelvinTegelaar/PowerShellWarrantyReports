@@ -32,19 +32,34 @@ function  Get-WarrantyNinja {
     } else {
         $DevicesRaw = Invoke-WebRequest -uri "$($NinjaURL)/v2/devices-detailed" -Method GET -Headers $AuthHeader
         $Devices = $DevicesRaw.content | ConvertFrom-Json
+
+        $After = 0
+        $PageSize = 1000
+        $Devices = do {
+            $Result = (Invoke-WebRequest -uri "$($NinjaURL)/v2/devices-detailed?pageSize=$PageSize&after=$After" -Method GET -Headers $AuthHeader -ContentType 'application/json').content | ConvertFrom-Json -depth 100
+            $Result
+            $ResultCount = ($Result.id | Measure-Object -Maximum)
+            $After = $ResultCount.maximum
+    
+        } while ($ResultCount.count -eq $PageSize)
+
     }
     $i = 0
     $warrantyObject = foreach ($device in $Devices) {
         $i++
         Write-Progress -Activity "Grabbing Warranty information" -status "Processing $($device.system.biosSerialNumber). Device $i of $($Devices.Count)" -percentComplete ($i / $Devices.Count * 100)
         $DeviceOrg = ($NinjaOrgs | Where-Object { $_.id -eq $Device.organizationId }).name
-        $WarState = Get-Warrantyinfo -DeviceSerial $device.system.biosSerialNumber -client $DeviceOrg
+        try {
+            $WarState = Get-Warrantyinfo -DeviceSerial $device.system.biosSerialNumber -client $DeviceOrg
+        } catch {
+            Write-Error "Failed to fetch warranty data for device: $($Device.systemName) $_"
+        }
         $Null = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
 
         if ($warstate.EndDate) {
-            $Milliseconds = (New-TimeSpan -Start $date1 -End $warstate.EndDate).TotalMilliseconds
+            $Seconds = [int]([math]::Truncate((New-TimeSpan -Start $date1 -End $warstate.EndDate).TotalSeconds))
             $UpdateBody = @{
-                "$NinjaFieldName" = $Milliseconds
+                "$NinjaFieldName" = $Seconds
             } | convertto-json
             
             if ($SyncWithSource -eq $true) {
@@ -52,9 +67,8 @@ function  Get-WarrantyNinja {
                     $true {
                         
                         try {
-                            $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
-                        }
-                        catch {
+                            $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json' -ea stop
+                        } catch {
                             Write-Error "Failed to update device: $($Device.systemName) $_"
                         }
                     }
@@ -64,9 +78,8 @@ function  Get-WarrantyNinja {
 
                         if ($null -eq $WarrantyDate -and $null -ne $warstate.EndDate) { 
                             try {
-                                $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json'
-                            }
-                            catch {
+                                $Result = Invoke-WebRequest -uri "$($NinjaURL)/v2/device/$($Device.id)/custom-fields" -Method PATCH -Headers $AuthHeader -body $UpdateBody -contenttype 'application/json' -ea stop
+                            } catch {
                                 Write-Error "Failed to update device: $($Device.systemName) $_"
                             }        
                         } 
