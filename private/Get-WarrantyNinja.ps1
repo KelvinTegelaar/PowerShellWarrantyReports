@@ -57,7 +57,7 @@ function  Get-WarrantyNinja {
         $Null = set-content 'Devices.json' -force -value ($Devices | select-object -skip $i | convertto-json -depth 5)
 
         if ($warstate.EndDate) {
-            $Milliseconds = [int64]([math]::Truncate((New-TimeSpan -Start $date1 -End $warstate.EndDate).TotalMilliseconds))
+            $Milliseconds = ([DateTimeOffset]$warstate.EndDate).ToUnixTimeMilliseconds()
             $UpdateBody = @{
                 "$NinjaFieldName" = $Milliseconds
             } | convertto-json
