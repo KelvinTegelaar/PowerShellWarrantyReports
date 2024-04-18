@@ -21,6 +21,8 @@ function update-warrantyinfo {
         [String]$CWManageAPIURL,
         [Parameter(ParameterSetName = 'CWManage', Mandatory = $true)]
         [String]$CWManageCompanyID,
+        [Parameter(ParameterSetName = 'CWManage', Mandatory = $false)]
+        [array]$CWManageConfigTypes,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
         [switch]$ITGlue,
         [Parameter(ParameterSetName = 'ITGlue', Mandatory = $true)]
@@ -115,7 +117,7 @@ function update-warrantyinfo {
         Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         CSV { $WarrantyStatus = Get-WarrantyCSV -Sourcefile $CSVFilePath | Sort-Object -Property Client }
         ITGlue { $WarrantyStatus = Get-WarrantyITG -ITGAPIKey $ITGlueAPIKey -ITGAPIURL $ITGlueAPIURL -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
-        CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
+        CWManage { $WarrantyStatus = Get-WarrantyCWM -CwCompanyID $CWManageCompanyID -CWMpiKeyPublic $CWManagePublicKey -CWMpiKeyprivate $CWManagePrivateKey -CWMAPIURL $CWManageAPIURL  -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty -ConfigTypes $CWManageConfigTypes | Sort-Object -Property Client }
         Nable { $WarrantyStatus = Get-WarrantyNable -NableURL $NableURL -JWTKey $NableJWT | Sort-Object -Property Client }
         DattoRMM { $WarrantyStatus = Get-WarrantyDattoRMM -DRMMApiURL $DattoAPIURL -DRMMSecret $DattoAPISecret -DRMMAPIKey $DattoAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         Hudu { $WarrantyStatus = Get-WarrantyHudu -HuduAPIKey $HuduAPIKey -HuduBaseURL $HuduBaseURL -HuduDeviceAssetLayout $HuduDeviceAssetLayout -HuduWarrantyField $HuduWarrantyField -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }

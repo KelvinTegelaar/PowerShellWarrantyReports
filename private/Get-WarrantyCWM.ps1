@@ -7,7 +7,8 @@ function  Get-WarrantyCWM {
         [string]$CWMAPIURL,
         [boolean]$SyncWithSource,
         [boolean]$Missingonly,
-        [boolean]$OverwriteWarranty
+        [boolean]$OverwriteWarranty,
+        [array]$ConfigTypes
     )
  
     Write-Host "Source is Connectwise Manage. Grabbing all devices." -ForegroundColor Green
@@ -32,9 +33,17 @@ function  Get-WarrantyCWM {
         Write-Host "Found previous run results. Starting from last object." -ForegroundColor green
         $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
     } else {
+        $BaseUri = "$($CWMAPIURL)/company/configurations?pageSize=250"
+        if ($ConfigTypes) {
+            foreach ($Type in $ConfigTypes) {
+                $CTParam += "type/name='$Type' or "
+            }
+            $CTParam = $CTParam.TrimEnd("or ")
+            $BaseUri = "$($BaseUri)&conditions=$($CTParam)"
+        }
         $i = 0
         $Devices = do {
-            $DeviceList = Invoke-RestMethod -Headers $header -Method GET -Uri "$($CWMAPIURL)/company/configurations?pageSize=250&page=$i"
+            $DeviceList = Invoke-RestMethod -Headers $header -Method GET -Uri "$($BaseUri)&page=$i"
             $i++
             $DeviceList
             Write-Host "Retrieved $(250 * $i) configurations" -ForegroundColor Yellow
