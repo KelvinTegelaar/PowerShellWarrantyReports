@@ -12,7 +12,7 @@ function  Get-WarrantyHalo {
         [switch]$resume
     )
 
-    write-host "Source is Halo. Grabbing all devices - New Version." -ForegroundColor Green
+    write-host "Source is Halo." -ForegroundColor Green
     #Get the Halo API Module if not installed
     if (Get-Module -ListAvailable -Name HaloAPI) {
         Import-Module HaloAPI 
@@ -29,7 +29,7 @@ function  Get-WarrantyHalo {
         write-host "Found previous run results. Starting from last object." -ForegroundColor green
         $Devices = Get-Content 'Devices.json' | ConvertFrom-Json
     } elseif ($script:ColumnsID){
-        Write-Host "Using Columns ID $script:ColumnsID" -ForegroundColor Green
+        Write-Host "getting Halo Assets Using Columns ID $script:ColumnsID" -ForegroundColor Green
         $Devices = Get-HaloAsset -ColumnsID $script:ColumnsID
     } else {
         write-Host "Getting All Halo Asset Information" -ForegroundColor Green
@@ -59,7 +59,7 @@ function  Get-WarrantyHalo {
             }
         }
 
-        Write-Progress -Activity "Grabbing Warranty information - New Version" -Status "Processing $Serial. Device $i of $($devices.Count)" -PercentComplete ($i / $Devices.Count * 100)      
+        Write-Progress -Activity "Grabbing Warranty information" -Status "Processing $Serial. Device $i of $($devices.Count)" -PercentComplete ($i / $Devices.Count * 100)      
         if ($ProductNumber) {
             $WarState = Get-Warrantyinfo -DeviceSerial $Serial -client $device.client_name -ProductNumber $ProductNumber
         } else { 
@@ -97,8 +97,6 @@ function  Get-WarrantyHalo {
                 }
             }
         }
-        #write-host "This is the Warranty $WarState"
-        #write-host "This is the update $AssetUpdate"
     }
     
     # Process any remaining warranties
