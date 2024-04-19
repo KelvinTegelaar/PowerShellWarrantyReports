@@ -99,18 +99,18 @@ To speed the script up we also recommend the following:
 
 Create a Column Profile in Halo that includes just the following: 
 
-Asset/Serial Number (inventory_number)
-Parts Warranty Start
-Parts Warranty Ends
-ProductNumber (A field required for HP Warranty checks)
+- Asset/Serial Number (inventory_number)
+- Parts Warranty Start
+- Parts Warranty Ends
+- ProductNumber (A field required for HP Warranty checks)
 
 Get the ID of that Column Profile and use the -columnsID switch as in the example below
 
-update-warrantyinfo -Halo -HaloClientID "YourAPIAppClientID" -HaloClientSecret "YourHaloAPIAppSecret" -HaloURL "YourHaloURL" -HaloSerialField "Halo Serial Field Name" -SyncWithSource -OverwriteWarranty -ExcludeApple -ColumnsID "YourColumnProfileID"
+        update-warrantyinfo -Halo -HaloClientID "YourAPIAppClientID" -HaloClientSecret "YourHaloAPIAppSecret" -HaloURL "YourHaloURL" -HaloSerialField "Halo Serial Field Name" -SyncWithSource -OverwriteWarranty -ExcludeApple -ColumnsID "YourColumnProfileID"
 
 By default we have disabled the ability to resume where you have left off in the case of a failure or for some other reason.  You can enable this by using the -Resume switch as in the example below. This will make the script much slower to run, especially if you are not using a column profile
 
-update-warrantyinfo -Halo -HaloClientID "YourAPIAppClientID" -HaloClientSecret "YourHaloAPIAppSecret" -HaloURL "YourHaloURL" -HaloSerialField "Halo Serial Field Name" -SyncWithSource -OverwriteWarranty -ExcludeApple -ColumnsID "YourColumnProfileID" -Resume
+        update-warrantyinfo -Halo -HaloClientID "YourAPIAppClientID" -HaloClientSecret "YourHaloAPIAppSecret" -HaloURL "YourHaloURL" -HaloSerialField "Halo Serial Field Name" -SyncWithSource -OverwriteWarranty -ExcludeApple -ColumnsID "YourColumnProfileID" -Resume
 
 ## BluetraitIO
 
