@@ -69,8 +69,11 @@ function update-warrantyinfo {
         [String]$HaloClientSecret,
         [Parameter(ParameterSetName = 'Halo', Mandatory = $true)]
         [String]$HaloSerialField,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $false)]
+        [String]$ColumnsID,
+        [Parameter(ParameterSetName = 'Halo', Mandatory = $false)]
+        [switch]$Resume,
 
-        
         [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
         [switch]$Ninja,
         [Parameter(ParameterSetName = 'Ninja', Mandatory = $true)]
@@ -113,6 +116,9 @@ function update-warrantyinfo {
     $script:ExcludeLenovo = $ExcludeLenovo
     $script:ExcludeMS = $ExcludeMS
     $script:LogPath = $LogFile
+    $script:resume = $resume
+    $script:ColumnsID = $ColumnsID
+
     switch ($PSBoundParameters.Keys) {
         Autotask { $WarrantyStatus = Get-WarrantyAutotask -AutotaskCredentials $AutotaskCredentials -AutotaskAPIKey $AutotaskAPIKey -SyncWithSource $SyncWithSource -MissingOnly $Missingonly -OverwriteWarranty $OverwriteWarranty | Sort-Object -Property Client }
         CSV { $WarrantyStatus = Get-WarrantyCSV -Sourcefile $CSVFilePath | Sort-Object -Property Client }
