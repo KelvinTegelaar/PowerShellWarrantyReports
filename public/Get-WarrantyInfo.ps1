@@ -3,7 +3,8 @@ function  Get-Warrantyinfo {
     Param(
         [string]$DeviceSerial,
         [String]$client,
-        [String]$vendor
+        [String]$vendor,
+        [string]$ProductNumber
     )
     if ($LogActions) { add-content -path $LogFile -Value "Starting lookup for $($DeviceSerial),$($Client)" -force }
     if ($vendor) {

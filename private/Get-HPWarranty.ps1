@@ -1,7 +1,7 @@
-function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client) {
+function get-HPWarranty([Parameter(Mandatory = $true)]$SourceDevice, $Client, $ProductNumber) {
     if ($script:ExcludeHP -ne $True) {
         try { 
-            $HPReq = Invoke-RestMethod -Uri "https://warrantyapiproxy.azurewebsites.net/api/HP?serial=$($SourceDevice)"
+            $HPReq = Invoke-RestMethod -Uri "https://warrantyapiproxy.azurewebsites.net/api/HP?serial=$($SourceDevice)&Product=$($ProductNumber)"
         } catch {
             $HPReq = $null
         }
